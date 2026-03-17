@@ -32,16 +32,15 @@
                 <div class="bg-shopee p-2 rounded-xl shadow-lg shadow-orange-200">
                     <i data-lucide="layout-dashboard" class="text-white w-5 h-5"></i>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight text-slate-800">Affiliate <span class="shopee-orange">Insight</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-slate-800" id="appTitle">Affiliate <span class="shopee-orange">Insight</span></h1>
             </div>
             
             <div class="flex gap-3 items-center">
-                <button onclick="toggleGithubModal()" class="text-slate-500 hover:text-slate-800 p-2 rounded-lg hover:bg-slate-50 transition-all flex items-center gap-2">
+                <button id="btnSettings" onclick="toggleGithubModal()" class="text-slate-500 hover:text-slate-800 p-2 rounded-lg hover:bg-slate-50 transition-all flex items-center gap-2">
                     <i data-lucide="github" class="w-5 h-5"></i>
                     <span class="hidden md:inline text-sm font-medium">ตั้งค่า GitHub</span>
                 </button>
-                
-                <button id="resetBtn" class="hidden text-slate-400 hover:text-shopee text-sm font-medium flex items-center gap-2 transition-all px-3 py-2 rounded-lg hover:bg-orange-50" onclick="location.reload()">
+                <button id="resetBtn" class="hidden text-slate-400 hover:text-shopee text-sm font-medium flex items-center gap-2 transition-all px-3 py-2 rounded-lg hover:bg-orange-50" onclick="location.href = window.location.pathname">
                     <i data-lucide="refresh-cw" class="w-4 h-4"></i> ล้างข้อมูล
                 </button>
                 
@@ -52,7 +51,7 @@
                     <div id="exportDropdown" class="hidden absolute right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl min-w-[220px] z-50 overflow-hidden">
                         <div class="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50">แชร์ให้ลูกค้า</div>
                         <button onclick="handleGithubUpload()" class="w-full text-left px-4 py-3 text-sm hover:bg-orange-50 flex items-center gap-3 transition-colors text-orange-600 font-bold">
-                            <i data-lucide="cloud-upload" class="w-4 h-4"></i> บันทึกไปที่ GitHub
+                            <i data-lucide="share-2" class="w-4 h-4"></i> สร้างลิงก์รายงาน
                         </button>
                         <div class="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 border-t border-slate-50">รูปแบบไฟล์</div>
                         <button onclick="exportData('xlsx')" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors">
@@ -60,10 +59,6 @@
                         </button>
                         <button onclick="exportData('pdf')" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors border-t border-slate-50">
                             <i data-lucide="file-type-2" class="w-4 h-4 text-rose-500"></i> PDF (.pdf)
-                        </button>
-                        <div class="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 border-t border-slate-50">คัดลอก</div>
-                        <button onclick="copyToClipboard()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="clipboard" class="w-4 h-4 text-slate-500"></i> คัดลอกตาราง
                         </button>
                     </div>
                 </div>
@@ -107,7 +102,7 @@
                             <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-full">Sales</span>
                         </div>
                         <h3 class="text-3xl font-black text-slate-800" id="statOrderValue">0</h3>
-                        <p class="text-slate-400 text-sm mt-1">ยอดขาย</p>
+                        <p class="text-slate-400 text-sm mt-1">ยอดขายสุทธิ</p>
                     </div>
                     <div class="bg-white p-7 rounded-[2rem] shadow-xl border border-emerald-50 card-container">
                         <div class="flex justify-between items-center mb-5">
@@ -170,14 +165,14 @@
 
         <div id="loading" class="fixed inset-0 bg-white/95 backdrop-blur-xl hidden flex-col items-center justify-center z-[100]">
             <div class="w-20 h-20 border-4 border-slate-100 border-t-shopee rounded-full animate-spin mb-6"></div>
-            <p class="font-bold text-xl text-slate-800">กำลังประมวลผลข้อมูล...</p>
+            <p class="font-bold text-xl text-slate-800" id="loadingText">กำลังประมวลผลข้อมูล...</p>
         </div>
 
         <div id="githubModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
             <div class="modal-backdrop absolute inset-0" onclick="toggleGithubModal()"></div>
             <div class="bg-white rounded-[2.5rem] w-full max-w-md p-10 relative z-10 shadow-2xl animate-fade-in">
                 <h3 class="text-2xl font-black text-slate-800 mb-2">ตั้งค่า GitHub API</h3>
-                <p class="text-slate-400 text-sm mb-8 leading-relaxed">ข้อมูลนี้จะถูกเก็บไว้ในเครื่องของคุณเท่านั้น เพื่อใช้สำหรับการแชร์รายงานให้ลูกค้า</p>
+                <p class="text-slate-400 text-sm mb-8 leading-relaxed">ข้อมูลนี้จะถูกเก็บไว้ในเครื่องของคุณเท่านั้น เพื่อใช้สำหรับการสร้างลิงก์ให้ลูกค้า</p>
                 
                 <div class="space-y-5">
                     <div>
@@ -218,6 +213,52 @@
             owner: localStorage.getItem('gh_owner') || '',
             repo: localStorage.getItem('gh_repo') || ''
         };
+
+        // --- ระบบโหลดรายงานจากลิงก์ให้ลูกค้าดู ---
+        window.addEventListener('load', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const reportUrl = urlParams.get('report');
+            
+            if (reportUrl) {
+                document.getElementById('uploadContainer').classList.add('hidden');
+                document.getElementById('loading').classList.replace('hidden', 'flex');
+                document.getElementById('loadingText').innerText = "กำลังโหลดรายงานของท่าน...";
+
+                try {
+                    const res = await fetch(reportUrl);
+                    if (!res.ok) throw new Error("ลิงก์รายงานไม่ถูกต้องหรือหมดอายุ");
+                    const payload = await res.json();
+
+                    // กู้คืนข้อมูลมาเก็บในตัวแปรระบบ
+                    totals = payload.summary.totals;
+                    sortedData = payload.details.map(d => [
+                        JSON.stringify(d.subid.split(' > ')),
+                        {
+                            ids: d.subid.split(' > '),
+                            order: d.order_value,
+                            base: d.base_comm,
+                            extra: d.extra_comm,
+                            net: d.commission
+                        }
+                    ]);
+
+                    // ซ่อนเมนูที่ลูกค้าไม่จำเป็นต้องใช้
+                    document.getElementById('exportArea').classList.add('hidden');
+                    document.getElementById('btnSettings').classList.add('hidden');
+                    document.getElementById('appTitle').innerHTML = `รายงานของ <span class="shopee-orange">${payload.summary.client}</span>`;
+                    
+                    // แสดง Dashboard
+                    renderDashboard(true);
+                    showToast(`โหลดรายงานสำเร็จ!`);
+                } catch (err) {
+                    alert(err.message);
+                    document.getElementById('uploadContainer').classList.remove('hidden');
+                } finally {
+                    document.getElementById('loading').classList.replace('flex', 'hidden');
+                    document.getElementById('resetBtn').classList.remove('hidden'); // ให้ลูกค้ากดกลับหน้าแรกได้
+                }
+            }
+        });
 
         // UI Interactions
         function toggleGithubModal() {
@@ -261,6 +302,7 @@
             const files = e.target.files;
             if (!files.length) return;
 
+            document.getElementById('loadingText').innerText = "กำลังวิเคราะห์ข้อมูล...";
             document.getElementById('loading').classList.replace('hidden', 'flex');
             pathStats = {}; totals = { base: 0, extra: 0, order: 0, net: 0 };
 
@@ -296,15 +338,18 @@
                 });
             }
 
-            renderDashboard();
+            sortedData = Object.entries(pathStats).sort((a, b) => b[1].net - a[1].net);
+            renderDashboard(false);
             document.getElementById('loading').classList.replace('flex', 'hidden');
         });
 
-        function renderDashboard() {
-            sortedData = Object.entries(pathStats).sort((a, b) => b[1].net - a[1].net);
+        function renderDashboard(isClientView) {
             document.getElementById('uploadContainer').classList.add('hidden');
             document.getElementById('dashboardContent').classList.remove('hidden');
-            document.getElementById('exportArea').classList.remove('hidden');
+            
+            if (!isClientView) {
+                document.getElementById('exportArea').classList.remove('hidden');
+            }
             document.getElementById('resetBtn').classList.remove('hidden');
 
             document.getElementById('statComm').innerText = Math.round(totals.net).toLocaleString() + ' ฿';
@@ -334,7 +379,7 @@
 
             const legend = document.getElementById('chartLegend');
             legend.innerHTML = sortedData.map((item, i) => {
-                const perc = ((item[1].net / totals.net) * 100).toFixed(1);
+                const perc = totals.net > 0 ? ((item[1].net / totals.net) * 100).toFixed(1) : 0;
                 return `
                     <div class="flex items-center justify-between text-[11px] py-1">
                         <div class="flex items-center gap-2 overflow-hidden mr-2">
@@ -351,7 +396,7 @@
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             sortedData.filter(i => i[1].ids.join(' ').toLowerCase().includes(filter.toLowerCase())).forEach(([k, d], idx) => {
-                const perc = ((d.net / totals.net) * 100).toFixed(1);
+                const perc = totals.net > 0 ? ((d.net / totals.net) * 100).toFixed(1) : 0;
                 const path = d.ids.filter(x => x).map(id => `<span class="sub-id-step">${id}</span>`).join(' <span class="text-[8px] text-slate-200">&#10140;</span> ');
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
@@ -365,36 +410,6 @@
             });
         }
 
-        // --- Export Functions ---
-        async function copyToClipboard() {
-            toggleExportMenu();
-            const headers = ["อันดับ", "SubID", "ยอดขาย", "ค่าคอมจากระบบ", "ค่าคอมพิเศษ", "คอมรวมทั้งหมด", "สัดส่วน"];
-            let tsvContent = headers.join('\t') + '\n';
-            
-            sortedData.forEach(([key, d], idx) => {
-                const perc = ((d.net / totals.net) * 100).toFixed(1) + "%";
-                const row = [
-                    idx + 1,
-                    d.ids.filter(x => x).join(' > '),
-                    Math.round(d.order),
-                    Math.round(d.base),
-                    Math.round(d.extra),
-                    Math.round(d.net),
-                    perc
-                ];
-                tsvContent += row.join('\t') + '\n';
-            });
-
-            const el = document.createElement('textarea');
-            el.value = tsvContent;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            
-            showToast("คัดลอกตารางลงคลิปบอร์ดแล้ว (นำไปวางใน Excel ได้)");
-        }
-
         // GitHub Integration
         async function handleGithubUpload() {
             toggleExportMenu();
@@ -404,13 +419,16 @@
                 return;
             }
 
-            const clientName = prompt("กรุณาระบุชื่อลูกค้าหรือเลขที่รายงาน เพื่อตั้งชื่อไฟล์:");
+            const clientName = prompt("กรุณาระบุชื่อลูกค้าหรือเลขที่รายงาน เพื่อใช้แสดงบนหน้าเว็บลูกค้า:");
             if (!clientName) return;
 
+            document.getElementById('loadingText').innerText = "กำลังสร้างลิงก์สำหรับลูกค้า...";
             document.getElementById('loading').classList.replace('hidden', 'flex');
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const fileName = `reports/${clientName}_${timestamp}.json`;
             
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const fileName = `reports/${clientName.replace(/\s+/g, '_')}_${timestamp}.json`;
+            
+            // เตรียมข้อมูลที่จะเซฟ (เพิ่ม base_comm, extra_comm ไว้คำนวณกราฟ)
             const payload = {
                 summary: {
                     timestamp: new Date().toLocaleString('th-TH'),
@@ -421,8 +439,10 @@
                     rank: i + 1,
                     subid: d.ids.filter(x => x).join(' > '),
                     order_value: Math.round(d.order),
+                    base_comm: Math.round(d.base),
+                    extra_comm: Math.round(d.extra),
                     commission: Math.round(d.net),
-                    percent: ((d.net / totals.net) * 100).toFixed(1) + "%"
+                    percent: totals.net > 0 ? ((d.net / totals.net) * 100).toFixed(1) + "%" : "0.0%"
                 }))
             };
 
@@ -443,21 +463,29 @@
                 });
 
                 if (response.ok) {
-                    const result = await response.json();
-                    const viewUrl = `https://github.com/${ghSettings.owner}/${ghSettings.repo}/blob/main/${fileName}`;
+                    // สร้าง URL สำหรับให้ลูกค้าเข้ามาดูรายงานในเว็บนี้
+                    const rawUrl = `https://raw.githubusercontent.com/${ghSettings.owner}/${ghSettings.repo}/main/${fileName}`;
+                    const appUrl = window.location.href.split('?')[0]; // URL ปัจจุบันของหน้าเว็บ
+                    const shareLink = `${appUrl}?report=${encodeURIComponent(rawUrl)}`;
                     
+                    // Copy to clipboard
                     const el = document.createElement('textarea');
-                    el.value = viewUrl;
+                    el.value = shareLink;
                     document.body.appendChild(el);
                     el.select();
                     document.execCommand('copy');
                     document.body.removeChild(el);
 
-                    showToast("บันทึกสำเร็จ! คัดลอกลิงก์รายงานแล้ว");
-                    window.open(viewUrl, '_blank');
+                    showToast("สร้างลิงก์สำเร็จ! คัดลอกลิงก์เรียบร้อยแล้ว", 5000);
+                    
+                    // เด้งหน้าต่างยืนยันและให้ลิงก์ตรงๆ เผื่อพลาด
+                    setTimeout(() => {
+                        prompt("ลิงก์รายงานของคุณ (ถูกคัดลอกไว้แล้ว สามารถกดส่งให้ลูกค้าได้เลย):", shareLink);
+                    }, 500);
+
                 } else {
                     const error = await response.json();
-                    alert(`GitHub Error: ${error.message}`);
+                    alert(`อัปโหลดไม่สำเร็จ กรุณาเช็คการตั้งค่า GitHub: ${error.message}`);
                 }
             } catch (err) {
                 alert(`Error: ${err.message}`);

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate Profit Analytics Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Kanit:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --brand-primary: #ee4d2d;
+            --brand-secondary: #ff5722;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --info: #3b82f6;
+        }
+
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b;
+        }
+
+        .font-inter { font-family: 'Inter', sans-serif; }
+
+        .stat-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(241, 245, 249, 1);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+        }
+
+        .gradient-orange { background: linear-gradient(135deg, #ee4d2d 0%, #ff7a5c 100%); }
+        .gradient-emerald { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+        .gradient-rose { background: linear-gradient(135deg, #e11d48 0%, #fb7185 100%); }
+        .gradient-indigo { background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        canvas { filter: drop-shadow(0 10px 15px rgba(0,0,0,0.03)); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="min-h-screen flex flex-col">
+        <!-- Navigation -->
+        <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 gradient-orange rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-200">
+                        <i data-lucide="trending-up" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-slate-900" id="appTitle">Affiliate <span class="text-[#ee4d2d]">Insight</span></h1>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter leading-none mt-0.5">Dashboard วิเคราะห์กำไรสุทธิ</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btnConfig" onclick="toggleGithubModal()" class="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all flex items-center gap-2 text-sm font-semibold">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                        <span class="hidden sm:inline">ตั้งค่า</span>
+                    </button>
+                    
+                    <div id="actionArea" class="hidden flex items-center gap-2 ml-2 pl-4 border-l border-slate-200">
+                        <button onclick="window.location.reload()" class="p-2 text-slate-400 hover:text-slate-900 rounded-lg transition-all">
+                            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                        </button>
+                        <button id="btnShare" onclick="handleGithubUpload()" class="bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:bg-slate-800 transition-all">
+                            <i data-lucide="external-link" class="w-4 h-4"></i> แชร์รายงาน
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-grow max-w-7xl mx-auto w-full p-6 md:p-8">
+            
+            <!-- Step 1: Upload (Visible only at start) -->
+            <section id="uploadContainer" class="flex flex-col items-center justify-center py-24">
+                <div class="text-center mb-12">
+                    <div class="inline-flex p-6 bg-orange-50 rounded-full mb-6 animate-float">
+                        <i data-lucide="file-up" class="w-12 h-12 text-[#ee4d2d]"></i>
+                    </div>
+                    <h2 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">วิเคราะห์ผลตอบแทนของคุณ</h2>
+                    <p class="text-slate-500 max-w-md mx-auto">อัปโหลดไฟล์ CSV รายงานจาก Shopee เพื่อดูสรุปกำไรสุทธิและประสิทธิภาพของค่าโฆษณาแบบละเอียด</p>
+                </div>
+                
+                <label for="fileInput" class="group relative w-full max-w-2xl cursor-pointer">
+                    <div class="bg-white border-2 border-dashed border-slate-200 group-hover:border-[#ee4d2d] rounded-[2.5rem] py-20 text-center transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-orange-50">
+                        <i data-lucide="plus-circle" class="w-16 h-16 text-slate-200 group-hover:text-[#ee4d2d] mx-auto mb-4 transition-colors"></i>
+                        <p class="text-slate-800 text-xl font-bold mb-1">เลือกไฟล์รายงาน .csv</p>
+                        <p class="text-slate-400 text-sm font-medium">ลากไฟล์มาวาง หรือ คลิกเพื่อเลือกจากเครื่อง</p>
+                    </div>
+                    <input type="file" id="fileInput" class="hidden" accept=".csv">
+                </label>
+            </section>
+
+            <!-- Step 2: Dashboard (Hidden until upload) -->
+            <div id="dashboardContent" class="hidden space-y-8">
+                
+                <!-- KPI Header -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Net Profit -->
+                    <div class="stat-card bg-white p-6 rounded-[2rem] flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+                                <i data-lucide="wallet" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md uppercase tracking-wider">กำไรสุทธิ</span>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-xs font-semibold mb-1">รายได้หลังหักค่า Ads</p>
+                            <h3 class="text-3xl font-extrabold text-slate-900 font-inter" id="statTotalProfit">฿0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Total Comm -->
+                    <div class="stat-card bg-white p-6 rounded-[2rem] flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-orange-50 text-[#ee4d2d] rounded-2xl">
+                                <i data-lucide="banknote" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-[#ee4d2d] bg-orange-50 px-2 py-1 rounded-md uppercase tracking-wider">คอมมิชชั่นรวม</span>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-xs font-semibold mb-1">รายได้รวมก่อนหักค่า Ads</p>
+                            <h3 class="text-3xl font-extrabold text-slate-900 font-inter" id="statTotalComm">฿0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Ads Cost (Swapped from Gross Sales) -->
+                    <div class="stat-card bg-white p-6 rounded-[2rem] flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-rose-50 text-rose-600 rounded-2xl">
+                                <i data-lucide="megaphone" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-md uppercase tracking-wider">ค่าโฆษณา Ads</span>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-xs font-semibold mb-1">งบประมาณที่ใช้ไปทั้งหมด</p>
+                            <h3 class="text-3xl font-extrabold text-slate-900 font-inter" id="statTotalAds">฿0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Efficiency -->
+                    <div class="stat-card bg-white p-6 rounded-[2rem] flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                                <i data-lucide="zap" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md uppercase tracking-wider">ROAS</span>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-xs font-semibold mb-1">ความคุ้มค่าโฆษณา</p>
+                            <h3 class="text-3xl font-extrabold text-slate-900 font-inter" id="statAvgRoas">0.00</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphs Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Main Trend: Profit vs Ads -->
+                    <div class="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-slate-50 shadow-sm">
+                        <div class="flex items-center justify-between mb-8">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 leading-tight">เปรียบเทียบกำไร และ ค่าโฆษณา</h3>
+                                <p class="text-slate-400 text-xs font-medium">เทรนด์รายวันเพื่อวิเคราะห์ความคุ้มค่า</p>
+                            </div>
+                            <div class="flex gap-4 items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">กำไร</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-rose-400"></span>
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase">Ads</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-[350px] w-full">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Cost Structure Doughnut -->
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-50 shadow-sm flex flex-col">
+                        <div class="mb-8">
+                            <h3 class="text-lg font-bold text-slate-900 leading-tight">สัดส่วนค่าใช้จ่าย</h3>
+                            <p class="text-slate-400 text-xs font-medium">กำไรสุทธิเทียบกับต้นทุนค่าโฆษณา</p>
+                        </div>
+                        <div class="relative flex-grow flex items-center justify-center">
+                            <div class="absolute text-center">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Efficiency</p>
+                                <p class="text-2xl font-black text-slate-900 font-inter" id="profitRatioText">0%</p>
+                            </div>
+                            <canvas id="commPieChart"></canvas>
+                        </div>
+                        <div id="pieLegend" class="mt-8 space-y-2">
+                            <!-- Injected Legend -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="bg-white rounded-[2.5rem] border border-slate-50 shadow-sm overflow-hidden">
+                    <div class="p-8 border-b border-slate-50 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                        <h3 class="text-lg font-bold text-slate-900">บันทึกข้อมูลรายวัน</h3>
+                        <div class="relative group">
+                            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                            <input type="text" id="tableSearch" placeholder="ค้นหาวันที่..." class="pl-11 pr-4 py-2 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-orange-100 outline-none w-full sm:w-64 transition-all">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <th class="px-8 py-4">วันที่</th>
+                                    <th class="px-6 py-4 text-right">จำนวนออเดอร์</th>
+                                    <th class="px-6 py-4 text-right">ยอดขายรวม</th>
+                                    <th class="px-6 py-4 text-right">คอมมิชรวม</th>
+                                    <th class="px-6 py-4 text-right text-rose-500">ค่า Ads</th>
+                                    <th class="px-8 py-4 text-right font-bold text-slate-900">กำไรสุทธิ</th>
+                                    <th class="px-8 py-4 text-center">ROAS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody" class="divide-y divide-slate-50 text-sm font-medium">
+                                <!-- Table rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="py-8 text-center bg-white border-t border-slate-100">
+            <p class="text-slate-400 text-[11px] font-bold uppercase tracking-[0.2em]">Generated by Affiliate Insight Engine</p>
+        </footer>
+
+        <!-- Settings Modal -->
+        <div id="githubModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all">
+            <div class="bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl scale-in border border-slate-100">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-slate-900">ตั้งค่า GitHub API</h3>
+                    <button onclick="toggleGithubModal()" class="text-slate-400 hover:text-slate-900"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Personal Access Token</label>
+                        <input type="password" id="ghToken" class="w-full px-4 py-3 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-orange-200 text-sm font-inter">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Username</label>
+                            <input type="text" id="ghOwner" class="w-full px-4 py-3 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-orange-200 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Repo Name</label>
+                            <input type="text" id="ghRepo" class="w-full px-4 py-3 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-orange-200 text-sm">
+                        </div>
+                    </div>
+                    <button onclick="saveGithubSettings()" class="w-full bg-[#ee4d2d] text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-orange-200 transition-all mt-4">บันทึกการตั้งค่า</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl opacity-0 translate-y-4 transition-all duration-300 z-[200] flex items-center gap-3">
+            <span id="toastMsg" class="text-sm font-bold">ดำเนินการสำเร็จ</span>
+        </div>
+
+        <!-- Loader -->
+        <div id="loading" class="fixed inset-0 bg-white/80 backdrop-blur-md hidden flex-col items-center justify-center z-[1000]">
+            <div class="w-12 h-12 border-4 border-slate-100 border-t-[#ee4d2d] rounded-full animate-spin"></div>
+            <p class="mt-4 font-bold text-slate-900" id="loadingText">กำลังประมวลผลข้อมูล...</p>
+        </div>
+    </div>
+
+    <script>
+        // --- App State ---
+        let mainData = [];
+        let summaryData = null;
+        let trendChart = null;
+        let commChart = null;
+        const ghSettings = {
+            token: localStorage.getItem('aff_gh_token') || '',
+            owner: localStorage.getItem('aff_gh_owner') || '',
+            repo: localStorage.getItem('aff_gh_repo') || ''
+        };
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+            document.getElementById('tableSearch').addEventListener('input', (e) => renderTable(e.target.value));
+        });
+
+        function toggleGithubModal() {
+            const modal = document.getElementById('githubModal');
+            modal.classList.toggle('hidden');
+            if(!modal.classList.contains('hidden')) {
+                document.getElementById('ghToken').value = ghSettings.token;
+                document.getElementById('ghOwner').value = ghSettings.owner;
+                document.getElementById('ghRepo').value = ghSettings.repo;
+            }
+        }
+
+        function saveGithubSettings() {
+            ghSettings.token = document.getElementById('ghToken').value.trim();
+            ghSettings.owner = document.getElementById('ghOwner').value.trim();
+            ghSettings.repo = document.getElementById('ghRepo').value.trim();
+            localStorage.setItem('aff_gh_token', ghSettings.token);
+            localStorage.setItem('aff_gh_owner', ghSettings.owner);
+            localStorage.setItem('aff_gh_repo', ghSettings.repo);
+            showToast("บันทึกเรียบร้อย");
+            toggleGithubModal();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.add('opacity-100', 'translate-y-0');
+            t.classList.remove('translate-y-4');
+            setTimeout(() => {
+                t.classList.remove('opacity-100', 'translate-y-0');
+                t.classList.add('translate-y-4');
+            }, 3000);
+        }
+
+        // --- Data Processor ---
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('loading').classList.replace('hidden', 'flex');
+            
+            const reader = new FileReader();
+            reader.onload = (ev) => processCSV(ev.target.result);
+            reader.readAsText(file);
+        }
+
+        function processCSV(text) {
+            const rows = text.split(/\r?\n/).filter(r => r.trim());
+            const dataRows = rows.slice(1).map(row => {
+                const parts = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || row.split(',');
+                return parts.map(p => p.trim().replace(/"/g, ''));
+            });
+
+            mainData = [];
+            let foundSummary = null;
+
+            dataRows.forEach(cells => {
+                if (cells[0] === 'รวม') {
+                    foundSummary = parseRow(cells);
+                } else if (cells[0] && cells[0] !== 'BIG1' && cells[0] !== 'วันที่') {
+                    mainData.push(parseRow(cells));
+                }
+            });
+
+            // Sorting by date (assuming YYYY-MM-DD or similar sortable string)
+            mainData.sort((a, b) => a.date.localeCompare(b.date));
+            
+            summaryData = foundSummary || calculateSummary();
+            renderDashboard();
+            document.getElementById('loading').classList.replace('flex', 'hidden');
+        }
+
+        function parseRow(cells) {
+            const n = (v) => parseFloat(v?.replace(/,/g, '') || 0);
+            return {
+                date: cells[0],
+                orders: n(cells[1]),
+                sales: n(cells[2]),
+                commPerc: cells[3],
+                baseComm: n(cells[4]),
+                extraComm: n(cells[5]),
+                totalComm: n(cells[6]),
+                ads: n(cells[7]),
+                profit: n(cells[8]),
+                roas: n(cells[9])
+            };
+        }
+
+        function calculateSummary() {
+            let s = { totalComm: 0, sales: 0, profit: 0, roas: 0, ads: 0 };
+            mainData.forEach(d => {
+                s.totalComm += d.totalComm; s.sales += d.sales; 
+                s.profit += d.profit; s.ads += d.ads;
+            });
+            s.roas = s.ads > 0 ? (s.totalComm / s.ads) : 0;
+            return s;
+        }
+
+        function renderDashboard() {
+            document.getElementById('uploadContainer').classList.add('hidden');
+            document.getElementById('dashboardContent').classList.remove('hidden');
+            document.getElementById('actionArea').classList.remove('hidden');
+
+            const fmt = (v) => v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            
+            document.getElementById('statTotalProfit').innerText = '฿' + fmt(summaryData.profit);
+            document.getElementById('statTotalComm').innerText = '฿' + fmt(summaryData.totalComm);
+            document.getElementById('statTotalAds').innerText = '฿' + fmt(summaryData.ads);
+            document.getElementById('statAvgRoas').innerText = summaryData.roas.toFixed(2);
+
+            const profitRatio = ((summaryData.profit / (summaryData.profit + summaryData.ads)) * 100).toFixed(0);
+            document.getElementById('profitRatioText').innerText = profitRatio + '%';
+
+            updateCharts();
+            renderTable();
+        }
+
+        // --- Visuals ---
+        function updateCharts() {
+            // Trend Chart
+            const ctxTrend = document.getElementById('trendChart').getContext('2d');
+            if (trendChart) trendChart.destroy();
+
+            const gradProfit = ctxTrend.createLinearGradient(0, 0, 0, 400);
+            gradProfit.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+            gradProfit.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+            const gradAds = ctxTrend.createLinearGradient(0, 0, 0, 400);
+            gradAds.addColorStop(0, 'rgba(244, 63, 94, 0.1)');
+            gradAds.addColorStop(1, 'rgba(244, 63, 94, 0)');
+
+            trendChart = new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: mainData.map(d => d.date),
+                    datasets: [
+                        {
+                            label: 'กำไรสุทธิ',
+                            data: mainData.map(d => d.profit),
+                            borderColor: '#10b981',
+                            backgroundColor: gradProfit,
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'ค่าโฆษณา Ads',
+                            data: mainData.map(d => d.ads),
+                            borderColor: '#fb7185',
+                            backgroundColor: gradAds,
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: '#f1f5f9', drawBorder: false }, ticks: { font: { family: 'Inter' } } },
+                        x: { grid: { display: false }, ticks: { font: { family: 'Kanit', size: 10 } } }
+                    }
+                }
+            });
+
+            // Pie Chart
+            const ctxPie = document.getElementById('commPieChart').getContext('2d');
+            if (commChart) commChart.destroy();
+            
+            commChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['กำไรสุทธิ', 'ค่า Ads'],
+                    datasets: [{
+                        data: [summaryData.profit, summaryData.ads],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        hoverOffset: 15,
+                        borderWidth: 0,
+                        cutout: '82%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const total = summaryData.profit + summaryData.ads;
+            const pPerc = total > 0 ? ((summaryData.profit/total)*100).toFixed(1) : 0;
+            const aPerc = total > 0 ? ((summaryData.ads/total)*100).toFixed(1) : 0;
+
+            document.getElementById('pieLegend').innerHTML = `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                        <span class="text-xs font-bold text-slate-600">กำไรสุทธิ</span>
+                    </div>
+                    <span class="text-xs font-bold font-inter">${pPerc}%</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                        <span class="text-xs font-bold text-slate-600">ค่าโฆษณา</span>
+                    </div>
+                    <span class="text-xs font-bold font-inter">${aPerc}%</span>
+                </div>
+            `;
+        }
+
+        function renderTable(filter = '') {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            const filtered = mainData.filter(d => d.date.includes(filter));
+            
+            filtered.forEach(d => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors group";
+                tr.innerHTML = `
+                    <td class="px-8 py-5 font-bold text-slate-900">${d.date}</td>
+                    <td class="px-6 py-5 text-right font-inter text-slate-500">${d.orders.toLocaleString()}</td>
+                    <td class="px-6 py-5 text-right font-inter text-slate-500">${d.sales.toLocaleString()}</td>
+                    <td class="px-6 py-5 text-right font-inter text-orange-600">฿${d.totalComm.toLocaleString()}</td>
+                    <td class="px-6 py-5 text-right font-inter text-rose-500">฿${d.ads.toLocaleString()}</td>
+                    <td class="px-8 py-5 text-right font-black font-inter ${d.profit < 0 ? 'text-rose-600' : 'text-emerald-600'} bg-slate-50/30 group-hover:bg-transparent">
+                        ฿${d.profit.toLocaleString()}
+                    </td>
+                    <td class="px-8 py-5 text-center">
+                        <span class="px-2 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-xs font-bold font-inter">${d.roas.toFixed(2)}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- GitHub / Share Logic ---
+        async function handleGithubUpload() {
+            if (!ghSettings.token || !ghSettings.owner || !ghSettings.repo) {
+                toggleGithubModal();
+                showToast("กรุณาตั้งค่า GitHub ก่อนใช้งาน");
+                return;
+            }
+
+            const client = prompt("กรุณาระบุชื่อรายงาน (เช่น ชื่อลูกค้า หรือ แคมเปญ):");
+            if (!client) return;
+
+            document.getElementById('loadingText').innerText = "กำลังสร้างลิงก์สำหรับแชร์...";
+            document.getElementById('loading').classList.replace('hidden', 'flex');
+            
+            const timestamp = new Date().getTime();
+            const fileName = `reports/report_${timestamp}.json`;
+            const payload = {
+                client: client,
+                summary: summaryData,
+                history: mainData,
+                version: "2.0"
+            };
+
+            const url = `https://api.github.com/repos/${ghSettings.owner}/${ghSettings.repo}/contents/${fileName}`;
+            const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+
+            try {
+                const res = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${ghSettings.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `Share report: ${client}`, content: content })
+                });
+
+                if (res.ok) {
+                    const rawUrl = `https://raw.githubusercontent.com/${ghSettings.owner}/${ghSettings.repo}/main/${fileName}`;
+                    const shareUrl = `${window.location.origin}${window.location.pathname}?report=${encodeURIComponent(rawUrl)}`;
+                    
+                    // Copy to clipboard
+                    const el = document.createElement('textarea');
+                    el.value = shareUrl;
+                    document.body.appendChild(el); el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+
+                    showToast("คัดลอกลิงก์รายงานเรียบร้อยแล้ว!");
+                    prompt("คัดลอกลิงก์นี้ส่งให้ลูกค้า:", shareUrl);
+                } else {
+                    const err = await res.json();
+                    alert("เกิดข้อผิดพลาดจาก GitHub: " + err.message);
+                }
+            } catch (err) { alert("Error: " + err.message); }
+            finally { document.getElementById('loading').classList.replace('flex', 'hidden'); }
+        }
+
+        // Check for shared report in URL
+        window.addEventListener('load', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const reportUrl = urlParams.get('report');
+            if (reportUrl) {
+                document.getElementById('loadingText').innerText = "กำลังโหลดรายงาน...";
+                document.getElementById('loading').classList.replace('hidden', 'flex');
+                try {
+                    const res = await fetch(reportUrl);
+                    const data = await res.json();
+                    mainData = data.history;
+                    summaryData = data.summary;
+                    document.getElementById('appTitle').innerHTML = `Insight <span class="text-slate-400 font-normal">for</span> <span class="text-[#ee4d2d]">${data.client}</span>`;
+                    renderDashboard();
+                    document.getElementById('btnConfig').style.display = 'none';
+                    document.getElementById('btnShare').style.display = 'none';
+                } catch (e) { alert("ไม่สามารถโหลดรายงานได้ ลิงก์อาจไม่ถูกต้อง"); }
+                finally { document.getElementById('loading').classList.replace('flex', 'hidden'); }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+{
+  "summary": {
+    "timestamp": "18/3/2569 01:04:59",
+    "client": "big1-com16",
+    "totals": {
+      "base": 3368.976872000002,
+      "extra": 15819.089135200013,
+      "order": 227379.44814400095,
+      "net": 19188.06600720001
+    }
+  },
+  "details": [
+    {
+      "rank": 1,
+      "subid": "sofabed",
+      "order_value": 78758,
+      "commission": 6395,
+      "percent": "33.3%"
+    },
+    {
+      "rank": 2,
+      "subid": "M01rum",
+      "order_value": 55531,
+      "commission": 4004,
+      "percent": "20.9%"
+    },
+    {
+      "rank": 3,
+      "subid": "aztk",
+      "order_value": 29023,
+      "commission": 2863,
+      "percent": "14.9%"
+    },
+    {
+      "rank": 4,
+      "subid": "big016270226",
+      "order_value": 17009,
+      "commission": 1455,
+      "percent": "7.6%"
+    },
+    {
+      "rank": 5,
+      "subid": "big020270226",
+      "order_value": 13673,
+      "commission": 1334,
+      "percent": "7.0%"
+    },
+    {
+      "rank": 6,
+      "subid": "M01",
+      "order_value": 13567,
+      "commission": 1169,
+      "percent": "6.1%"
+    },
+    {
+      "rank": 7,
+      "subid": "A0115rum",
+      "order_value": 9905,
+      "commission": 974,
+      "percent": "5.1%"
+    },
+    {
+      "rank": 8,
+      "subid": "A0016",
+      "order_value": 5134,
+      "commission": 513,
+      "percent": "2.7%"
+    },
+    {
+      "rank": 9,
+      "subid": "M01M01",
+      "order_value": 3875,
+      "commission": 391,
+      "percent": "2.0%"
+    },
+    {
+      "rank": 10,
+      "subid": "A0104rum",
+      "order_value": 905,
+      "commission": 91,
+      "percent": "0.5%"
+    }
+  ]
+}

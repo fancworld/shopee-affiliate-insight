@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopee Affiliate Pro Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- jsPDF & AutoTable for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
+        .shopee-orange { color: #ee4d2d; }
+        .bg-shopee { background-color: #ee4d2d; }
+        .card-container { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-container:hover { transform: translateY(-5px); }
+        .sub-id-step { font-size: 0.65rem; padding: 1px 8px; border-radius: 9999px; background: #fee2e2; color: #ee4d2d; font-weight: 500; border: 1px solid rgba(238, 77, 45, 0.1); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+        
+        /* Dropdown styling */
+        .export-dropdown { display: none; position: absolute; right: 0; top: 115%; background: white; border-radius: 1.25rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; min-width: 200px; z-index: 60; overflow: hidden; }
+        .export-dropdown.show { display: block; animation: slideDown 0.2s cubic-bezier(0, 0, 0.2, 1); }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Toast notification */
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 12px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+        @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 0; opacity: 0; } }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    </style>
+</head>
+<body class="antialiased text-slate-800">
+
+    <div class="min-h-screen flex flex-col">
+        <!-- Navigation Bar -->
+        <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="bg-shopee p-2 rounded-xl shadow-lg shadow-orange-200">
+                    <i data-lucide="layout-dashboard" class="text-white w-5 h-5"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight text-slate-800">Affiliate <span class="shopee-orange">Insight</span></h1>
+            </div>
+            <div class="flex gap-3 items-center">
+                <button id="resetBtn" class="hidden text-slate-400 hover:text-shopee text-sm font-medium flex items-center gap-2 transition-all px-3 py-2 rounded-lg hover:bg-orange-50" onclick="location.reload()">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> ล้างข้อมูล
+                </button>
+                
+                <!-- Export Menu Group -->
+                <div class="relative hidden" id="exportArea">
+                    <button id="exportMenuBtn" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-xl shadow-slate-200 transition-all flex items-center gap-2" onclick="toggleExportMenu()">
+                        <i data-lucide="download" class="w-4 h-4"></i> ส่งออกข้อมูล <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-60"></i>
+                    </button>
+                    <div id="exportDropdown" class="export-dropdown">
+                        <div class="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50">รูปแบบไฟล์</div>
+                        <button onclick="exportData('xlsx')" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-500"></i> Excel (.xlsx)
+                        </button>
+                        <button onclick="exportData('csv')" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors border-t border-slate-50">
+                            <i data-lucide="file-text" class="w-4 h-4 text-blue-500"></i> CSV (.csv)
+                        </button>
+                        <button onclick="exportData('pdf')" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors border-t border-slate-50">
+                            <i data-lucide="file-type-2" class="w-4 h-4 text-rose-500"></i> PDF (.pdf)
+                        </button>
+                        <button onclick="exportData('json')" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors border-t border-slate-50">
+                            <i data-lucide="braces" class="w-4 h-4 text-amber-500"></i> JSON (.json)
+                        </button>
+                        <div class="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 border-t border-slate-50">เครื่องมืออื่น</div>
+                        <button onclick="copyToClipboard()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                            <i data-lucide="clipboard" class="w-4 h-4 text-slate-500"></i> คัดลอกตาราง
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-grow max-w-7xl mx-auto w-full p-4 md:p-8">
+            
+            <!-- Welcome / Upload Screen -->
+            <div id="uploadContainer" class="flex flex-col items-center justify-center py-24 animate-fade-in">
+                <div class="text-center mb-12">
+                    <div class="bg-orange-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="upload" class="text-shopee w-10 h-10"></i>
+                    </div>
+                    <h2 class="text-4xl font-black text-slate-900 mb-4 tracking-tight">วิเคราะห์รายได้ของคุณ</h2>
+                    <p class="text-slate-500 max-w-md mx-auto text-lg leading-relaxed">อัปโหลดไฟล์รายงานจาก Shopee เพื่อสรุปผลราย SubID ทันที</p>
+                </div>
+                
+                <label for="fileInput" class="cursor-pointer group relative">
+                    <div class="bg-white border-2 border-dashed border-slate-200 group-hover:border-shopee rounded-[2.5rem] px-16 md:px-32 py-20 text-center transition-all duration-500 shadow-xl shadow-slate-100/50 hover:shadow-orange-100 hover:bg-orange-50/30">
+                        <div class="bg-slate-50 group-hover:bg-white w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                            <i data-lucide="file-up" class="text-slate-400 group-hover:text-shopee w-12 h-12"></i>
+                        </div>
+                        <p class="text-slate-800 text-xl font-bold mb-2">วางไฟล์ที่นี่ หรือคลิกเพื่ออัปโหลด</p>
+                        <p class="text-slate-400">รองรับไฟล์ .xlsx, .csv (เลือกหลายไฟล์ได้)</p>
+                    </div>
+                    <input type="file" id="fileInput" class="hidden" multiple accept=".xlsx, .xls, .csv">
+                </label>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboardContent" class="hidden space-y-8">
+                <!-- Stat Overview Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-7 rounded-[2rem] shadow-xl shadow-orange-100/40 border border-orange-100 card-container relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-5">
+                                <div class="p-3 bg-orange-500 rounded-2xl shadow-lg shadow-orange-200">
+                                    <i data-lucide="piggy-bank" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <span class="text-[11px] font-black text-orange-500 uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full">สุทธิ 80%</span>
+                            </div>
+                            <h3 class="text-4xl font-black text-orange-600 mb-1" id="statComm">0</h3>
+                            <p class="text-slate-500 font-medium">ค่าคอมมิชชั่นทั้งหมด</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-7 rounded-[2rem] shadow-xl shadow-blue-100/40 border border-blue-100 card-container relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-5">
+                                <div class="p-3 bg-blue-500 rounded-2xl shadow-lg shadow-blue-200">
+                                    <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <span class="text-[11px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">ยอดขาย</span>
+                            </div>
+                            <h3 class="text-4xl font-black text-blue-600 mb-1" id="statOrderValue">0</h3>
+                            <p class="text-slate-500 font-medium">ยอดขาย</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-7 rounded-[2rem] shadow-xl shadow-emerald-100/40 border border-emerald-100 card-container relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-5">
+                                <div class="p-3 bg-emerald-500 rounded-2xl shadow-lg shadow-emerald-200">
+                                    <i data-lucide="cpu" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <span class="text-[11px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full">ระบบ</span>
+                            </div>
+                            <h3 class="text-4xl font-black text-emerald-600 mb-1" id="statBase">0</h3>
+                            <p class="text-slate-500 font-medium">ค่าคอมจากระบบ</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-7 rounded-[2rem] shadow-xl shadow-indigo-100/40 border border-indigo-100 card-container relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-5">
+                                <div class="p-3 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-200">
+                                    <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+                                </div>
+                                <span class="text-[11px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">พิเศษ</span>
+                            </div>
+                            <h3 class="text-4xl font-black text-indigo-600 mb-1" id="statExtra">0</h3>
+                            <p class="text-slate-500 font-medium">ค่าคอมพิเศษ</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Row (Chart + Info) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Chart Card -->
+                    <div class="lg:col-span-1 bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 p-8">
+                        <h3 class="font-black text-xl text-slate-800 mb-6 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="text-shopee w-5 h-5"></i> สัดส่วน SubID ทั้งหมด (%)
+                        </h3>
+                        <div class="relative h-64 flex items-center justify-center">
+                            <canvas id="top10Chart"></canvas>
+                        </div>
+                        <div id="chartLegend" class="mt-6 space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar"></div>
+                    </div>
+
+                    <!-- Table View -->
+                    <div class="lg:col-span-2 bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-50 overflow-hidden flex flex-col">
+                        <div class="p-8 flex flex-col sm:flex-row justify-between sm:items-center gap-6">
+                            <div>
+                                <h3 class="font-black text-2xl text-slate-800 mb-1">ประสิทธิภาพราย SubID</h3>
+                                <p class="text-slate-400">เรียงตามค่าคอมมิชชั่นทั้งหมด</p>
+                            </div>
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                                <input type="text" id="tableSearch" placeholder="ค้นหา SubID..." class="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-slate-800 outline-none shadow-inner">
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto px-4 pb-4 flex-grow">
+                            <table class="w-full text-left" id="summaryTable">
+                                <thead class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+                                    <tr>
+                                        <th class="px-4 py-4 text-center">อันดับ</th>
+                                        <th class="px-4 py-4">SubID</th>
+                                        <th class="px-4 py-4 text-right">ยอดขาย</th>
+                                        <th class="px-4 py-4 text-right">ค่าคอมจากระบบ</th>
+                                        <th class="px-4 py-4 text-right">ค่าคอมพิเศษ</th>
+                                        <th class="px-4 py-4 text-right text-shopee">ค่าคอมมิชชั่นทั้งหมด</th>
+                                        <th class="px-4 py-4 text-right">สัดส่วน (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody" class="divide-y divide-slate-50 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Loader -->
+        <div id="loading" class="fixed inset-0 bg-white/95 backdrop-blur-xl hidden flex-col items-center justify-center z-[100]">
+            <div class="w-24 h-24 border-[6px] border-slate-100 border-t-shopee rounded-full animate-spin mb-8"></div>
+            <p class="font-black text-2xl text-slate-900 tracking-tight text-center">กำลังวิเคราะห์ข้อมูล...<br><span class="text-sm font-medium text-slate-400">ระบบกำลังประมวลผลข้อมูล SubID และกราฟสถิติ</span></p>
+        </div>
+        
+        <!-- Toast Notification -->
+        <div id="toast">คัดลอกข้อมูลลงคลิปบอร์ดแล้ว!</div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let pathStats = {};
+        let grandTotalBaseNet = 0;
+        let grandTotalExtraNet = 0;
+        let grandTotalOrderValue = 0;
+        let sortedPathData = [];
+        let myPieChart = null;
+
+        const fileInput = document.getElementById('fileInput');
+        const searchInput = document.getElementById('tableSearch');
+
+        function toggleExportMenu() {
+            document.getElementById('exportDropdown').classList.toggle('show');
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('#exportArea')) {
+                document.getElementById('exportDropdown').classList.remove('show');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        fileInput.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (files.length === 0) return;
+
+            const loader = document.getElementById('loading');
+            loader.classList.replace('hidden', 'flex');
+
+            pathStats = {};
+            grandTotalBaseNet = 0;
+            grandTotalExtraNet = 0;
+            grandTotalOrderValue = 0;
+
+            for (let file of files) {
+                await processFile(file);
+            }
+
+            renderDashboard();
+            loader.classList.replace('flex', 'hidden');
+        });
+
+        searchInput.addEventListener('input', (e) => renderTable(e.target.value));
+
+        function processFile(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const json = XLSX.utils.sheet_to_json(sheet);
+
+                        json.forEach(row => {
+                            const ids = [
+                                (row['Sub_id1'] || row['Sub ID 1'] || '').toString().trim(),
+                                (row['Sub_id2'] || row['Sub ID 2'] || '').toString().trim(),
+                                (row['Sub_id3'] || row['Sub ID 3'] || '').toString().trim(),
+                                (row['Sub_id4'] || row['Sub ID 4'] || '').toString().trim(),
+                                (row['Sub_id5'] || row['Sub ID 5'] || '').toString().trim()
+                            ];
+                            const pathKey = JSON.stringify(ids);
+                            
+                            const price = parseFloat(row['ราคา(฿)'] || row['Price'] || row['มูลค่าซื้อ(฿)'] || 0);
+                            const rawBaseCommission = parseFloat(row['ค่าคอมมิชชั่นสุทธิ(฿)'] || row['คอมมิชชั่นคำสั่งซื้อโดยรวม(฿)'] || 0);
+
+                            const netOrderValue = price * 0.8;
+                            const targetTotal10 = Math.min(price * 0.10, 225); 
+                            const netBaseCommission = rawBaseCommission * 0.8;
+                            const finalNetTotalTarget = targetTotal10 * 0.8;
+                            let netExtraPart = Math.max(0, finalNetTotalTarget - netBaseCommission);
+                            const rowNetTotal = netBaseCommission + netExtraPart;
+
+                            if (!pathStats[pathKey]) {
+                                pathStats[pathKey] = { orderValue: 0, netTotal: 0, baseNet: 0, extraNet: 0, ids: ids };
+                            }
+                            pathStats[pathKey].orderValue += netOrderValue;
+                            pathStats[pathKey].baseNet += netBaseCommission;
+                            pathStats[pathKey].extraNet += netExtraPart;
+                            pathStats[pathKey].netTotal += rowNetTotal;
+                            
+                            grandTotalBaseNet += netBaseCommission;
+                            grandTotalExtraNet += netExtraPart;
+                            grandTotalOrderValue += netOrderValue;
+                        });
+                    } catch (err) { console.error("Error:", err); }
+                    resolve();
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function renderDashboard() {
+            sortedPathData = Object.entries(pathStats).sort((a, b) => b[1].netTotal - a[1].netTotal);
+            
+            document.getElementById('uploadContainer').classList.add('hidden');
+            document.getElementById('dashboardContent').classList.remove('hidden');
+            document.getElementById('exportArea').classList.remove('hidden');
+            document.getElementById('resetBtn').classList.remove('hidden');
+
+            document.getElementById('statComm').innerText = Math.round(grandTotalBaseNet + grandTotalExtraNet).toLocaleString();
+            document.getElementById('statBase').innerText = Math.round(grandTotalBaseNet).toLocaleString();
+            document.getElementById('statExtra').innerText = Math.round(grandTotalExtraNet).toLocaleString();
+            document.getElementById('statOrderValue').innerText = Math.round(grandTotalOrderValue).toLocaleString();
+
+            updateChart();
+            renderTable();
+        }
+
+        function updateChart() {
+            // ปรับเปลี่ยน: ใช้ข้อมูลทั้งหมด (sortedPathData) แทนการจำกัด slice(0, 10)
+            const allData = sortedPathData;
+            const totalComm = grandTotalBaseNet + grandTotalExtraNet;
+            
+            const labels = allData.map(item => item[1].ids.filter(x => x).join(' > ') || 'Direct Link');
+            const chartValues = allData.map(item => Math.round(item[1].netTotal));
+            
+            // Generate beautiful dynamic colors
+            const getColors = (count) => {
+                const palette = ['#ee4d2d', '#f97316', '#fbbf24', '#34d399', '#22d3ee', '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#64748b'];
+                let colors = [];
+                for(let i=0; i<count; i++) {
+                    colors.push(palette[i % palette.length]);
+                }
+                return colors;
+            };
+
+            const colors = getColors(allData.length);
+            const ctx = document.getElementById('top10Chart').getContext('2d');
+            
+            if (myPieChart) myPieChart.destroy();
+            
+            myPieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: chartValues,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const percentage = ((value / totalComm) * 100).toFixed(1);
+                                    return ` รายได้: ${value.toLocaleString()} ฿ (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Custom Legend
+            const legendDiv = document.getElementById('chartLegend');
+            legendDiv.innerHTML = allData.map((item, i) => {
+                const percentage = ((item[1].netTotal / totalComm) * 100).toFixed(1);
+                const label = item[1].ids.filter(x => x).join(' > ') || 'Direct Link';
+                return `
+                    <div class="flex items-center justify-between text-[11px] group cursor-default py-1">
+                        <div class="flex items-center gap-2 overflow-hidden mr-2">
+                            <div class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${colors[i]}"></div>
+                            <span class="truncate text-slate-500 font-medium group-hover:text-slate-800 transition-colors">${label}</span>
+                        </div>
+                        <span class="font-bold text-slate-700 ml-auto">${percentage}%</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTable(filter = '') {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            const totalCommAll = grandTotalBaseNet + grandTotalExtraNet;
+            const filtered = sortedPathData.filter(([key, data]) => data.ids.join(' ').toLowerCase().includes(filter.toLowerCase()));
+
+            filtered.forEach(([key, data], index) => {
+                const badges = data.ids.map(id => id ? `<span class="sub-id-step">${id}</span>` : '').filter(b => b).join(' <i data-lucide="chevron-right" class="w-3 h-3 inline text-slate-200"></i> ');
+                const percentage = totalCommAll > 0 ? ((data.netTotal / totalCommAll) * 100).toFixed(1) : "0.0";
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-all duration-300 group";
+                tr.innerHTML = `
+                    <td class="px-4 py-6 text-center font-black text-slate-300 group-hover:text-shopee">${index + 1}</td>
+                    <td class="px-4 py-6">
+                        <div class="flex items-center flex-wrap gap-2">${badges || '<span class="text-slate-300 italic text-xs">Direct Link</span>'}</div>
+                    </td>
+                    <td class="px-4 py-6 text-right font-semibold text-slate-500">${Math.round(data.orderValue).toLocaleString()}</td>
+                    <td class="px-4 py-6 text-right text-slate-400">${Math.round(data.baseNet).toLocaleString()}</td>
+                    <td class="px-4 py-6 text-right text-indigo-500 font-bold">${Math.round(data.extraNet).toLocaleString()}</td>
+                    <td class="px-4 py-6 text-right font-black text-shopee text-lg">${Math.round(data.netTotal).toLocaleString()} ฿</td>
+                    <td class="px-4 py-6 text-right font-bold text-slate-600 bg-slate-50/50">${percentage}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        async function copyToClipboard() {
+            document.getElementById('exportDropdown').classList.remove('show');
+            const totalCommAll = grandTotalBaseNet + grandTotalExtraNet;
+            const headers = ["อันดับ", "SubID", "ยอดขาย", "ค่าคอมจากระบบ", "ค่าคอมพิเศษ", "ค่าคอมมิชชั่นทั้งหมด", "สัดส่วน (%)"];
+            let tsvContent = headers.join('\t') + '\n';
+            
+            sortedPathData.forEach(([key, data], idx) => {
+                const percentage = totalCommAll > 0 ? ((data.netTotal / totalCommAll) * 100).toFixed(1) : "0.0";
+                const row = [
+                    idx + 1,
+                    data.ids.filter(x => x).join(' > '),
+                    Math.round(data.orderValue),
+                    Math.round(data.baseNet),
+                    Math.round(data.extraNet),
+                    Math.round(data.netTotal),
+                    percentage + "%"
+                ];
+                tsvContent += row.join('\t') + '\n';
+            });
+
+            const el = document.createElement('textarea');
+            el.value = tsvContent;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            showToast("คัดลอกตารางลงคลิปบอร์ดแล้ว (สามารถวางใน Excel ได้)");
+        }
+
+        async function exportData(format) {
+            document.getElementById('exportDropdown').classList.remove('show');
+            const timestamp = new Date().toISOString().split('T')[0];
+            const fileName = `Shopee_Affiliate_Summary_${timestamp}`;
+            const totalCommAll = grandTotalBaseNet + grandTotalExtraNet;
+            
+            const report = sortedPathData.map(([key, data], idx) => ({
+                "อันดับ": idx + 1,
+                "SubID": data.ids.filter(x => x).join(' > '),
+                "ยอดขาย": Math.round(data.orderValue),
+                "ค่าคอมจากระบบ": Math.round(data.baseNet),
+                "ค่าคอมพิเศษ": Math.round(data.extraNet),
+                "ค่าคอมมิชชั่นทั้งหมด": Math.round(data.netTotal),
+                "สัดส่วน (%)": totalCommAll > 0 ? ((data.netTotal / totalCommAll) * 100).toFixed(1) + "%" : "0.0%"
+            }));
+
+            if (format === 'xlsx' || format === 'csv') {
+                const ws = XLSX.utils.json_to_sheet(report);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "ProfitAnalysis");
+                if (format === 'xlsx') XLSX.writeFile(wb, `${fileName}.xlsx`);
+                else XLSX.writeFile(wb, `${fileName}.csv`, { bookType: 'csv' });
+            } 
+            else if (format === 'json') {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", fileName + ".json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            }
+            else if (format === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'pt', 'a4');
+                doc.setFontSize(18);
+                doc.text("Shopee Affiliate Income Summary", 40, 40);
+                doc.setFontSize(10);
+                doc.text(`Generated on: ${new Date().toLocaleString('th-TH')}`, 40, 60);
+                
+                const tableHeaders = [["Rank", "SubID", "GMV", "Base", "Extra", "Total", "%"]];
+                const tableRows = report.map(r => [
+                    r["อันดับ"],
+                    r["SubID"],
+                    r["ยอดขาย"].toLocaleString(),
+                    r["ค่าคอมจากระบบ"].toLocaleString(),
+                    r["ค่าคอมพิเศษ"].toLocaleString(),
+                    r["ค่าคอมมิชชั่นทั้งหมด"].toLocaleString(),
+                    r["สัดส่วน (%)"]
+                ]);
+
+                doc.autoTable({
+                    head: tableHeaders,
+                    body: tableRows,
+                    startY: 80,
+                    theme: 'grid',
+                    styles: { fontSize: 7.5 },
+                    headStyles: { fillColor: [238, 77, 45] }
+                });
+                doc.save(`${fileName}.pdf`);
+            }
+        }
+    </script>
+</body>
+</html>

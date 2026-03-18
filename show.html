@@ -51,6 +51,9 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--shopee); }
+        
+        /* สไตล์พิเศษสำหรับมุมมองแชร์ให้ลูกค้า */
+        .shared-view .admin-only { display: none !important; }
     </style>
 </head>
 <body class="antialiased min-h-screen">
@@ -67,7 +70,7 @@
             </div>
         </div>
         
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 admin-only">
             <button onclick="toggleGithubModal()" class="p-2.5 rounded-xl hover:bg-orange-50 text-slate-400 hover:text-orange-600 transition-all">
                 <i data-lucide="settings-2" class="w-5 h-5"></i>
             </button>
@@ -84,8 +87,8 @@
 
     <main class="max-w-7xl mx-auto p-6 lg:p-10 space-y-10">
         
-        <!-- ส่วนอัปโหลดไฟล์ (Upload Section) -->
-        <section id="uploadSection" class="min-h-[60vh] flex flex-col items-center justify-center text-center">
+        <!-- ส่วนอัปโหลดไฟล์ (Admin Only) -->
+        <section id="uploadSection" class="min-h-[60vh] flex flex-col items-center justify-center text-center admin-only">
             <div class="mb-8 p-10 bg-white rounded-[3rem] card-shadow relative overflow-hidden group">
                 <div class="absolute -top-10 -right-10 w-32 h-32 bg-orange-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
                 <i data-lucide="file-spreadsheet" class="w-16 h-16 text-[#ee4d2d] mx-auto relative z-10"></i>
@@ -238,7 +241,7 @@
         </section>
     </main>
 
-    <!-- หน้าต่างตั้งค่า GitHub (GitHub Settings Modal) -->
+    <!-- หน้าต่างตั้งค่า GitHub (Admin Only) -->
     <div id="githubModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onclick="toggleGithubModal()"></div>
         <div class="bg-white rounded-[3rem] w-full max-w-md p-12 relative z-10 shadow-3xl animate-pop">
@@ -265,7 +268,7 @@
         </div>
     </div>
 
-    <!-- หน้าต่างกำลังโหลด (Loading Overlay) -->
+    <!-- หน้าต่างกำลังโหลด -->
     <div id="loading" class="fixed inset-0 bg-white/90 backdrop-blur-2xl hidden flex-col items-center justify-center z-[200]">
         <div class="relative">
             <div class="w-24 h-24 border-4 border-orange-100 border-t-[#ee4d2d] rounded-full animate-spin"></div>
@@ -276,11 +279,17 @@
         <p class="mt-8 font-bold text-slate-800 text-xl tracking-tight">กำลังประมวลผลข้อมูลรายงาน...</p>
     </div>
 
-    <!-- ระบบแจ้งเตือน (Toast) -->
+    <!-- ระบบแจ้งเตือน -->
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-[2rem] shadow-2xl z-[300] opacity-0 pointer-events-none transition-all duration-500 flex items-center gap-3">
         <i data-lucide="check-circle" class="text-emerald-400 w-5 h-5"></i>
         <span id="toastMsg" class="font-bold text-sm">ทำรายการสำเร็จ</span>
     </div>
+
+    <script id="embeddedData">
+        // ข้อมูลที่จะถูกฝังเมื่อส่งออกให้ลูกค้า
+        window.__PRELOADED_DATA__ = null;
+        window.__PRELOADED_STATS__ = null;
+    </script>
 
     <script>
         lucide.createIcons();
@@ -293,6 +302,16 @@
             token: localStorage.getItem('tor_gh_token') || '',
             owner: localStorage.getItem('tor_gh_owner') || '',
             repo: localStorage.getItem('tor_gh_repo') || ''
+        };
+
+        // ตรวจสอบว่ามีข้อมูลฝังมาหรือไม่ (สำหรับลูกค้าเปิดลิงก์)
+        window.onload = () => {
+            if (window.__PRELOADED_DATA__ && window.__PRELOADED_STATS__) {
+                processedData = window.__PRELOADED_DATA__;
+                summaryStats = window.__PRELOADED_STATS__;
+                document.body.classList.add('shared-view');
+                renderDashboard();
+            }
         };
 
         // UI ช่วยเหลือ
@@ -314,7 +333,6 @@
             toggleGithubModal();
         }
 
-        // การจัดการข้อมูลตัวเลข
         const cleanNum = (val) => {
             if (!val) return 0;
             let clean = val.toString().replace(/,/g, '').replace(/฿/g, '').replace(/%/g, '').trim();
@@ -323,15 +341,16 @@
 
         document.getElementById('fileInput').addEventListener('change', (e) => handleFile(e.target.files[0]));
         
-        // สนับสนุน Drag & Drop
         const dropZone = document.getElementById('dropZone');
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-orange-50/50'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-orange-50/50'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('bg-orange-50/50');
-            handleFile(e.dataTransfer.files[0]);
-        });
+        if (dropZone) {
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-orange-50/50'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-orange-50/50'));
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('bg-orange-50/50');
+                handleFile(e.dataTransfer.files[0]);
+            });
+        }
 
         function handleFile(file) {
             if (!file) return;
@@ -348,14 +367,9 @@
         }
 
         function processCSV(data) {
-            // ค้นหาแถวสรุปยอดรวม
             const totalRow = data.find(r => r['BIG1'] === 'รวม');
-            // กรองเอาเฉพาะรายการรายวัน (คอลัมน์แรกเป็นวันที่)
             const dailyRows = data.filter(r => r['BIG1'] && r['BIG1'].startsWith('202') && cleanNum(r['กำไร']) !== 0);
-            
-            // เรียงลำดับวันที่จากอดีตไปปัจจุบันสำหรับกราฟ
             const sortedData = [...dailyRows].sort((a, b) => new Date(a['BIG1']) - new Date(b['BIG1']));
-            
             processedData = sortedData;
 
             if (totalRow) {
@@ -367,7 +381,6 @@
                     roas: cleanNum(totalRow['ROAS'])
                 };
             } else {
-                // คำนวณเองหากไม่พบแถวรวม
                 summaryStats = dailyRows.reduce((acc, curr) => {
                     acc.profit += cleanNum(curr['กำไร']);
                     acc.ads += cleanNum(curr['ค่า Ads']);
@@ -382,17 +395,17 @@
         }
 
         function renderDashboard() {
-            document.getElementById('uploadSection').classList.add('hidden');
+            const upSec = document.getElementById('uploadSection');
+            if(upSec) upSec.classList.add('hidden');
             document.getElementById('dashboardContent').classList.remove('hidden');
-            document.getElementById('navActions').classList.remove('hidden');
+            const navAct = document.getElementById('navActions');
+            if(navAct) navAct.classList.remove('hidden');
 
-            // อัปเดตการ์ดสถิติ
             document.getElementById('statProfit').innerText = summaryStats.profit.toLocaleString() + ' ฿';
             document.getElementById('statAds').innerText = summaryStats.ads.toLocaleString() + ' ฿';
             document.getElementById('statComm').innerText = summaryStats.totalComm.toLocaleString() + ' ฿';
             document.getElementById('statRoas').innerText = summaryStats.roas.toLocaleString() + 'x';
 
-            // อัปเดตเปอร์เซ็นต์
             const adRatio = summaryStats.sales > 0 ? ((summaryStats.ads / summaryStats.sales) * 100).toFixed(1) : 0;
             const margin = summaryStats.sales > 0 ? ((summaryStats.profit / summaryStats.sales) * 100).toFixed(1) : 0;
 
@@ -401,7 +414,6 @@
             document.getElementById('marginText').innerText = margin + '%';
             document.getElementById('marginBar').style.width = margin + '%';
 
-            // สรุปภาพรวม
             let msg = `รายงานแสดงกำไรสุทธิทั้งหมด ${summaryStats.profit.toLocaleString()} บาท `;
             msg += summaryStats.roas >= 2.3 ? "แคมเปญมีประสิทธิภาพดีเยี่ยม (Profit Optimized)" : "แคมเปญอยู่ในระดับคงที่ (Stable Growth)";
             document.getElementById('performanceSummary').innerText = msg;
@@ -479,8 +491,6 @@
         function renderTable(filter = '') {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            
-            // แสดงข้อมูลรายวันย้อนกลับ (ใหม่ไปเก่า)
             const displayList = [...processedData].reverse().filter(d => d['BIG1'].includes(filter));
 
             displayList.forEach(d => {
@@ -507,9 +517,10 @@
             });
         }
 
-        document.getElementById('tableSearch').addEventListener('input', (e) => renderTable(e.target.value));
+        const tableSearch = document.getElementById('tableSearch');
+        if(tableSearch) tableSearch.addEventListener('input', (e) => renderTable(e.target.value));
 
-        // การแชร์ผ่าน GitHub
+        // ฟังก์ชันสำคัญ: การสร้างหน้าเว็บแชร์ให้ลูกค้า
         async function syncToCloud() {
             if (!config.token || !config.owner || !config.repo) {
                 toggleGithubModal();
@@ -517,24 +528,29 @@
                 return;
             }
 
-            const clientLabel = prompt("กรุณาระบุชื่อลูกค้าหรือแคมเปญสำหรับตั้งชื่อไฟล์:");
+            const clientLabel = prompt("กรุณาระบุชื่อรายงาน (จะแสดงเป็นชื่อไฟล์):");
             if (!clientLabel) return;
 
             document.getElementById('loading').classList.remove('hidden');
-            const ts = Date.now();
-            const fileName = `reports/${clientLabel.replace(/\s+/g, '_')}_${ts}.json`;
             
-            const payload = {
-                metadata: {
-                    report_name: clientLabel,
-                    generated_date: new Date().toLocaleString('th-TH'),
-                    summary: summaryStats
-                },
-                data_points: processedData
-            };
+            // ดึง HTML ปัจจุบันทั้งหมด
+            let fullHtml = document.documentElement.outerHTML;
+            
+            // เตรียมสคริปต์ฝังข้อมูล
+            const dataScript = `
+    <script id="embeddedData">
+        window.__PRELOADED_DATA__ = ${JSON.stringify(processedData)};
+        window.__PRELOADED_STATS__ = ${JSON.stringify(summaryStats)};
+    <\/script>`;
+
+            // แทนที่ส่วนของ embeddedData เดิมด้วยข้อมูลจริง
+            const sharedHtml = fullHtml.replace(/<script id="embeddedData">[\s\S]*?<\/script>/, dataScript);
+
+            const ts = Date.now();
+            const fileName = `reports/${clientLabel.replace(/\s+/g, '_')}_${ts}.html`;
+            const b64Content = btoa(unescape(encodeURIComponent(sharedHtml)));
 
             const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${fileName}`;
-            const b64Content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
 
             try {
                 const response = await fetch(url, {
@@ -544,14 +560,14 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: `อัปโหลดรายงานผลกำไรสำหรับ ${clientLabel}`,
+                        message: `สร้างรายงานแดชบอร์ดสำหรับ ${clientLabel}`,
                         content: b64Content
                     })
                 });
 
                 if (response.ok) {
                     const viewUrl = `https://github.com/${config.owner}/${config.repo}/blob/main/${fileName}`;
-                    showToast("อัปโหลดรายงานแล้ว! คัดลอกลิงก์สำเร็จ");
+                    showToast("สร้างหน้าแดชบอร์ดสำเร็จ! คัดลอกลิงก์แล้ว");
                     
                     const el = document.createElement('textarea');
                     el.value = viewUrl;
@@ -563,7 +579,7 @@
                     setTimeout(() => window.open(viewUrl, '_blank'), 1000);
                 } else {
                     const err = await response.json();
-                    alert("เกิดข้อผิดพลาดจาก GitHub: " + err.message);
+                    alert("GitHub Error: " + err.message);
                 }
             } catch (err) {
                 alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + err.message);

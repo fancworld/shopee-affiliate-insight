@@ -3,530 +3,593 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopee Affiliate Pro Dashboard</title>
+    <title>The Orange Room | แดชบอร์ดสรุปกำไรรายวัน</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
-        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
-        .shopee-orange { color: #ee4d2d; }
-        .bg-shopee { background-color: #ee4d2d; }
-        .card-container { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-container:hover { transform: translateY(-5px); }
-        .sub-id-step { font-size: 0.65rem; padding: 1px 8px; border-radius: 9999px; background: #fee2e2; color: #ee4d2d; font-weight: 500; border: 1px solid rgba(238, 77, 45, 0.1); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .modal-backdrop { background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); }
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600;700&display=swap');
+        
+        :root {
+            --shopee: #ee4d2d;
+            --shopee-light: #ff7337;
+            --shopee-bg: #fff5f2;
+        }
+
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background: var(--shopee-bg);
+            color: #334155;
+        }
+
+        .shopee-gradient {
+            background: linear-gradient(135deg, var(--shopee) 0%, var(--shopee-light) 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(238, 77, 45, 0.1), 0 8px 10px -6px rgba(238, 77, 45, 0.05);
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(238, 77, 45, 0.1);
+        }
+
+        .animate-pop {
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--shopee); }
+        
+        /* สไตล์พิเศษสำหรับมุมมองแชร์ให้ลูกค้า */
+        .shared-view .admin-only { display: none !important; }
     </style>
 </head>
-<body class="antialiased text-slate-800">
+<body class="antialiased min-h-screen">
 
-    <div class="min-h-screen flex flex-col">
-        <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="bg-shopee p-2 rounded-xl shadow-lg shadow-orange-200">
-                    <i data-lucide="layout-dashboard" class="text-white w-5 h-5"></i>
-                </div>
-                <h1 class="text-xl font-bold tracking-tight text-slate-800" id="appTitle">Affiliate <span class="shopee-orange">Insight</span></h1>
+    <!-- แถบนำทาง (Navbar) -->
+    <nav class="sticky top-0 z-50 glass-nav px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="shopee-gradient p-2 rounded-2xl shadow-lg shadow-orange-200">
+                <i data-lucide="pie-chart" class="text-white w-6 h-6"></i>
             </div>
-            
-            <div class="flex gap-3 items-center">
-                <button id="btnSettings" onclick="toggleGithubModal()" class="text-slate-500 hover:text-slate-800 p-2 rounded-lg hover:bg-slate-50 transition-all flex items-center gap-2">
-                    <i data-lucide="github" class="w-5 h-5"></i>
-                    <span class="hidden md:inline text-sm font-medium">ตั้งค่า GitHub</span>
-                </button>
-                <button id="resetBtn" class="hidden text-slate-400 hover:text-shopee text-sm font-medium flex items-center gap-2 transition-all px-3 py-2 rounded-lg hover:bg-orange-50" onclick="location.href = window.location.pathname">
-                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> ล้างข้อมูล
-                </button>
-                
-                <div class="relative hidden" id="exportArea">
-                    <button id="exportMenuBtn" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-xl shadow-slate-200 transition-all flex items-center gap-2" onclick="toggleExportMenu()">
-                        <i data-lucide="download" class="w-4 h-4"></i> ส่งออกข้อมูล <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-60"></i>
-                    </button>
-                    <div id="exportDropdown" class="hidden absolute right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl min-w-[220px] z-50 overflow-hidden">
-                        <div class="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50">แชร์ให้ลูกค้า</div>
-                        <button onclick="handleGithubUpload()" class="w-full text-left px-4 py-3 text-sm hover:bg-orange-50 flex items-center gap-3 transition-colors text-orange-600 font-bold">
-                            <i data-lucide="share-2" class="w-4 h-4"></i> สร้างลิงก์รายงาน
-                        </button>
-                        <div class="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 border-t border-slate-50">รูปแบบไฟล์</div>
-                        <button onclick="exportData('xlsx')" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors">
-                            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-500"></i> Excel (.xlsx)
-                        </button>
-                        <button onclick="exportData('pdf')" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 flex items-center gap-3 transition-colors border-t border-slate-50">
-                            <i data-lucide="file-type-2" class="w-4 h-4 text-rose-500"></i> PDF (.pdf)
-                        </button>
-                    </div>
-                </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-slate-800">THE ORANGE <span class="text-[#ee4d2d]">ROOM</span></h1>
+                <p class="text-[10px] font-bold text-orange-400 tracking-widest uppercase">รายงานวิเคราะห์กำไร</p>
             </div>
-        </nav>
-
-        <main class="flex-grow max-w-7xl mx-auto w-full p-4 md:p-8">
-            
-            <div id="uploadContainer" class="flex flex-col items-center justify-center py-24">
-                <div class="text-center mb-12">
-                    <div class="bg-orange-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i data-lucide="upload" class="text-shopee w-10 h-10"></i>
-                    </div>
-                    <h2 class="text-4xl font-black text-slate-900 mb-4 tracking-tight">ระบบวิเคราะห์คอมมิชชั่น</h2>
-                    <p class="text-slate-500 max-w-md mx-auto text-lg leading-relaxed">อัปโหลดรายงาน Shopee เพื่อเริ่มวิเคราะห์ราย SubID</p>
-                </div>
-                
-                <label for="fileInput" class="cursor-pointer group">
-                    <div class="bg-white border-2 border-dashed border-slate-200 group-hover:border-shopee rounded-[2.5rem] px-16 md:px-32 py-20 text-center transition-all shadow-xl shadow-slate-100/50 hover:bg-orange-50/20">
-                        <i data-lucide="file-up" class="text-slate-300 group-hover:text-shopee w-16 h-16 mx-auto mb-6 transition-colors"></i>
-                        <p class="text-slate-800 text-xl font-bold mb-2">เลือกไฟล์รายงาน</p>
-                        <p class="text-slate-400 font-medium">รองรับ .xlsx, .csv</p>
-                    </div>
-                    <input type="file" id="fileInput" class="hidden" multiple accept=".xlsx, .xls, .csv">
-                </label>
-            </div>
-
-            <div id="dashboardContent" class="hidden space-y-8">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-7 rounded-[2rem] shadow-xl border border-orange-50 card-container">
-                        <div class="flex justify-between items-center mb-5">
-                            <div class="p-3 bg-orange-500 rounded-2xl shadow-lg shadow-orange-200 text-white"><i data-lucide="coins"></i></div>
-                            <span class="text-[10px] font-black text-orange-500 uppercase tracking-widest bg-orange-50 px-2 py-1 rounded-full">Net Total</span>
-                        </div>
-                        <h3 class="text-3xl font-black text-slate-800" id="statComm">0</h3>
-                        <p class="text-slate-400 text-sm mt-1">ค่าคอมมิชชั่นทั้งหมด</p>
-                    </div>
-                    <div class="bg-white p-7 rounded-[2rem] shadow-xl border border-blue-50 card-container">
-                        <div class="flex justify-between items-center mb-5">
-                            <div class="p-3 bg-blue-500 rounded-2xl shadow-lg shadow-blue-200 text-white"><i data-lucide="shopping-cart"></i></div>
-                            <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-full">Sales</span>
-                        </div>
-                        <h3 class="text-3xl font-black text-slate-800" id="statOrderValue">0</h3>
-                        <p class="text-slate-400 text-sm mt-1">ยอดขายสุทธิ</p>
-                    </div>
-                    <div class="bg-white p-7 rounded-[2rem] shadow-xl border border-emerald-50 card-container">
-                        <div class="flex justify-between items-center mb-5">
-                            <div class="p-3 bg-emerald-500 rounded-2xl shadow-lg shadow-emerald-200 text-white"><i data-lucide="server"></i></div>
-                            <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-50 px-2 py-1 rounded-full">Base</span>
-                        </div>
-                        <h3 class="text-3xl font-black text-slate-800" id="statBase">0</h3>
-                        <p class="text-slate-400 text-sm mt-1">ค่าคอมจากระบบ</p>
-                    </div>
-                    <div class="bg-white p-7 rounded-[2rem] shadow-xl border border-indigo-50 card-container">
-                        <div class="flex justify-between items-center mb-5">
-                            <div class="p-3 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-200 text-white"><i data-lucide="zap"></i></div>
-                            <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-2 py-1 rounded-full">Extra</span>
-                        </div>
-                        <h3 class="text-3xl font-black text-slate-800" id="statExtra">0</h3>
-                        <p class="text-slate-400 text-sm mt-1">ค่าคอมพิเศษ</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-1 bg-white rounded-[2.5rem] shadow-xl p-8 border border-slate-50">
-                        <h3 class="font-bold text-xl text-slate-800 mb-6 flex items-center gap-2">
-                            <i data-lucide="pie-chart" class="text-shopee"></i> สัดส่วน SubID (%)
-                        </h3>
-                        <div class="relative h-64">
-                            <canvas id="top10Chart"></canvas>
-                        </div>
-                        <div id="chartLegend" class="mt-6 space-y-2 max-h-48 overflow-y-auto pr-2"></div>
-                    </div>
-
-                    <div class="lg:col-span-2 bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-slate-50">
-                        <div class="p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div>
-                                <h3 class="font-bold text-2xl text-slate-800">ประสิทธิภาพ SubID</h3>
-                                <p class="text-sm text-slate-400">สรุปข้อมูลเชิงลึกทั้งหมดที่มี</p>
-                            </div>
-                            <div class="relative w-full md:w-64">
-                                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4"></i>
-                                <input type="text" id="tableSearch" placeholder="ค้นหา..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-orange-200 outline-none">
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left" id="summaryTable">
-                                <thead class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50">
-                                    <tr>
-                                        <th class="px-6 py-4">อันดับ</th>
-                                        <th class="px-6 py-4">SubID</th>
-                                        <th class="px-6 py-4 text-right">ยอดขาย</th>
-                                        <th class="px-6 py-4 text-right text-shopee">คอมมิชชั่น</th>
-                                        <th class="px-6 py-4 text-right">สัดส่วน</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tableBody" class="divide-y divide-slate-50 text-sm font-medium text-slate-600"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <div id="loading" class="fixed inset-0 bg-white/95 backdrop-blur-xl hidden flex-col items-center justify-center z-[100]">
-            <div class="w-20 h-20 border-4 border-slate-100 border-t-shopee rounded-full animate-spin mb-6"></div>
-            <p class="font-bold text-xl text-slate-800" id="loadingText">กำลังประมวลผลข้อมูล...</p>
         </div>
+        
+        <div class="flex items-center gap-3 admin-only">
+            <button onclick="toggleGithubModal()" class="p-2.5 rounded-xl hover:bg-orange-50 text-slate-400 hover:text-orange-600 transition-all">
+                <i data-lucide="settings-2" class="w-5 h-5"></i>
+            </button>
+            <div id="navActions" class="hidden flex items-center gap-3">
+                <button onclick="location.reload()" class="p-2.5 rounded-xl hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition-all">
+                    <i data-lucide="refresh-ccw" class="w-5 h-5"></i>
+                </button>
+                <button onclick="syncToCloud()" class="shopee-gradient text-white px-6 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-orange-200 flex items-center gap-2 hover:scale-105 transition-all">
+                    <i data-lucide="external-link" class="w-4 h-4"></i> ส่งรายงานให้ลูกค้า
+                </button>
+            </div>
+        </div>
+    </nav>
 
-        <div id="githubModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-            <div class="modal-backdrop absolute inset-0" onclick="toggleGithubModal()"></div>
-            <div class="bg-white rounded-[2.5rem] w-full max-w-md p-10 relative z-10 shadow-2xl animate-fade-in">
-                <h3 class="text-2xl font-black text-slate-800 mb-2">ตั้งค่า GitHub API</h3>
-                <p class="text-slate-400 text-sm mb-8 leading-relaxed">ข้อมูลนี้จะถูกเก็บไว้ในเครื่องของคุณเท่านั้น เพื่อใช้สำหรับการสร้างลิงก์ให้ลูกค้า</p>
-                
-                <div class="space-y-5">
+    <main class="max-w-7xl mx-auto p-6 lg:p-10 space-y-10">
+        
+        <!-- ส่วนอัปโหลดไฟล์ (Admin Only) -->
+        <section id="uploadSection" class="min-h-[60vh] flex flex-col items-center justify-center text-center admin-only">
+            <div class="mb-8 p-10 bg-white rounded-[3rem] card-shadow relative overflow-hidden group">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-orange-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+                <i data-lucide="file-spreadsheet" class="w-16 h-16 text-[#ee4d2d] mx-auto relative z-10"></i>
+            </div>
+            <h2 class="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 text-slate-800">วิเคราะห์กำไร <span class="text-[#ee4d2d]">The Orange Room</span></h2>
+            <p class="text-slate-400 max-w-md mx-auto mb-10 text-lg font-light leading-relaxed">แปลงข้อมูลจาก Shopee ให้กลายเป็นรายงานที่สวยงามและดูง่ายในคลิกเดียว</p>
+            
+            <label id="dropZone" class="cursor-pointer group">
+                <div class="bg-white border-2 border-dashed border-orange-200 group-hover:border-[#ee4d2d] px-12 lg:px-24 py-16 rounded-[4rem] transition-all duration-500 hover:bg-orange-50/50 card-shadow">
+                    <div class="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:rotate-12 transition-transform">
+                        <i data-lucide="upload-cloud" class="text-[#ee4d2d] w-8 h-8"></i>
+                    </div>
+                    <p class="text-xl font-bold text-slate-700">เลือกไฟล์ CSV รายงานกำไร</p>
+                    <p class="text-slate-400 text-sm mt-2 font-medium tracking-wide">หรือลากไฟล์มาวางที่นี่เพื่อเริ่มต้น</p>
+                    <input type="file" id="fileInput" class="hidden" accept=".csv">
+                </div>
+            </label>
+        </section>
+
+        <!-- ส่วนของแดชบอร์ด (Dashboard Content) -->
+        <section id="dashboardContent" class="hidden space-y-10 animate-pop">
+            
+            <!-- การ์ดสถิติ (Summary Cards) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-8 rounded-[2.5rem] card-shadow border-t-8 border-t-[#ee4d2d]">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">กำไรสุทธิ</p>
+                        <i data-lucide="trending-up" class="text-emerald-500 w-5 h-5"></i>
+                    </div>
+                    <h3 id="statProfit" class="text-4xl font-extrabold text-slate-800 tracking-tight">0 ฿</h3>
+                    <p class="text-[10px] text-slate-400 mt-2 font-medium">กำไรสุทธิหลังหักค่าใช้จ่ายทั้งหมด</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] card-shadow border-t-8 border-t-orange-400">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">ค่าคอมมิชชั่นรวม</p>
+                        <i data-lucide="coins" class="text-orange-400 w-5 h-5"></i>
+                    </div>
+                    <h3 id="statComm" class="text-4xl font-extrabold text-slate-800 tracking-tight">0 ฿</h3>
+                    <p class="text-[10px] text-slate-400 mt-2 font-medium">รายได้ค่าคอมมิชชั่นทั้งหมดที่ได้รับ</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] card-shadow border-t-8 border-t-rose-500">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">ค่าโฆษณา (Ads)</p>
+                        <i data-lucide="zap" class="text-rose-500 w-5 h-5"></i>
+                    </div>
+                    <h3 id="statAds" class="text-4xl font-extrabold text-slate-800 tracking-tight">0 ฿</h3>
+                    <p class="text-[10px] text-slate-400 mt-2 font-medium">งบประมาณโฆษณาที่ใช้ไป</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] card-shadow border-t-8 border-t-indigo-500">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">ROAS รวม</p>
+                        <i data-lucide="activity" class="text-indigo-500 w-5 h-5"></i>
+                    </div>
+                    <h3 id="statRoas" class="text-4xl font-extrabold text-slate-800 tracking-tight">0x</h3>
+                    <p class="text-[10px] text-slate-400 mt-2 font-medium">ประสิทธิภาพการทำกำไร (Sales/Ads)</p>
+                </div>
+            </div>
+
+            <!-- กราฟและข้อมูลเชิงลึก (Charts & Insights) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- กราฟแนวโน้ม -->
+                <div class="lg:col-span-8 bg-white p-8 lg:p-10 rounded-[3.5rem] card-shadow">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+                        <div>
+                            <h4 class="text-2xl font-bold text-slate-800">กราฟแนวโน้มผลประกอบการ</h4>
+                            <p class="text-sm text-slate-400">เปรียบเทียบกำไรและค่าโฆษณารายวัน</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                <span class="w-3 h-3 rounded-full bg-[#ee4d2d]"></span> กำไร
+                            </div>
+                            <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                <span class="w-3 h-3 rounded-full bg-slate-200"></span> ค่า ADS
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-80 w-full">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- วิเคราะห์สัดส่วน -->
+                <div class="lg:col-span-4 bg-white p-10 rounded-[3.5rem] card-shadow flex flex-col">
+                    <h4 class="text-xl font-bold mb-8">วิเคราะห์ประสิทธิภาพ</h4>
+                    <div class="space-y-10 flex-grow">
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-xs font-bold text-slate-500">
+                                <span class="uppercase tracking-widest">สัดส่วนค่า Ads / ยอดขาย</span>
+                                <span id="adRatioText" class="text-rose-500">0%</span>
+                            </div>
+                            <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="adRatioBar" class="h-full bg-rose-500 transition-all duration-1000 shadow-sm" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-xs font-bold text-slate-500">
+                                <span class="uppercase tracking-widest">อัตรากำไร (Profit Margin)</span>
+                                <span id="marginText" class="text-emerald-500">0%</span>
+                            </div>
+                            <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="marginBar" class="h-full bg-emerald-500 transition-all duration-1000 shadow-sm" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-10 p-8 bg-orange-50 rounded-[2.5rem] border border-orange-100 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <i data-lucide="award" class="w-12 h-12 text-[#ee4d2d]"></i>
+                        </div>
+                        <p class="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em] mb-3">บทวิเคราะห์โดย AI</p>
+                        <p id="performanceSummary" class="text-sm font-medium text-slate-700 leading-relaxed">อัปโหลดข้อมูลเพื่อดูการสรุปผลประกอบการ...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ตารางรายละเอียดรายวัน (Daily Table) -->
+            <div class="bg-white rounded-[3.5rem] card-shadow overflow-hidden">
+                <div class="p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Personal Access Token</label>
-                        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-slate-200">
+                        <h4 class="text-2xl font-bold tracking-tight text-slate-800">รายละเอียดผลกำไรรายวัน</h4>
+                        <p class="text-sm text-slate-400">ข้อมูลเจาะลึกที่สรุปมาจากไฟล์รายงานของคุณ</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Owner (Username)</label>
-                            <input type="text" id="ghOwner" placeholder="ชื่อผู้ใช้" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-slate-200">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Repo Name</label>
-                            <input type="text" id="ghRepo" placeholder="ชื่อคลังเก็บ" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-slate-200">
-                        </div>
+                    <div class="relative w-full md:w-80">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5"></i>
+                        <input type="text" id="tableSearch" placeholder="ค้นหาตามวันที่..." class="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-100 transition-all font-medium">
                     </div>
-                    <button onclick="saveGithubSettings()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-xl hover:bg-slate-800 transition-all mt-4">บันทึกการตั้งค่า</button>
+                </div>
+                
+                <div class="table-container custom-scrollbar overflow-x-auto">
+                    <table class="w-full text-left" id="mainTable">
+                        <thead class="sticky top-0 bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-widest z-10">
+                            <tr>
+                                <th class="px-10 py-6">วันที่</th>
+                                <th class="px-10 py-6 text-right">ยอดขาย (฿)</th>
+                                <th class="px-10 py-6 text-right">ค่าคอมรวม (฿)</th>
+                                <th class="px-10 py-6 text-right">ค่า Ads (฿)</th>
+                                <th class="px-10 py-6 text-right text-[#ee4d2d]">กำไรสุทธิ (฿)</th>
+                                <th class="px-10 py-6 text-right">ROAS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-50 text-sm font-medium text-slate-600">
+                            <!-- แถวข้อมูลจะแสดงที่นี่ -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </section>
+    </main>
 
-        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl z-[200] opacity-0 pointer-events-none transition-all duration-300 font-bold flex items-center gap-3">
-            <i data-lucide="check-circle" class="text-emerald-400 w-5 h-5"></i>
-            <span id="toastMsg">ข้อความ</span>
+    <!-- หน้าต่างตั้งค่า GitHub (Admin Only) -->
+    <div id="githubModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onclick="toggleGithubModal()"></div>
+        <div class="bg-white rounded-[3rem] w-full max-w-md p-12 relative z-10 shadow-3xl animate-pop">
+            <h3 class="text-3xl font-bold mb-2 text-slate-800">ตั้งค่า <span class="text-[#ee4d2d]">GitHub Cloud</span></h3>
+            <p class="text-slate-400 text-sm mb-10 font-medium">สำหรับบันทึกรายงานและรับลิงก์ส่งต่อให้ลูกค้า</p>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Personal Access Token</label>
+                    <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-orange-100 transition-all font-medium">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">ชื่อผู้ใช้ (Username)</label>
+                        <input type="text" id="ghOwner" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-orange-100 font-medium">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">ชื่อคลัง (Repo Name)</label>
+                        <input type="text" id="ghRepo" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-orange-100 font-medium">
+                    </div>
+                </div>
+                <button onclick="saveSettings()" class="w-full shopee-gradient text-white py-5 rounded-[2rem] font-bold shadow-xl shadow-orange-100 hover:scale-105 transition-all">บันทึกการตั้งค่า</button>
+            </div>
         </div>
     </div>
+
+    <!-- หน้าต่างกำลังโหลด -->
+    <div id="loading" class="fixed inset-0 bg-white/90 backdrop-blur-2xl hidden flex-col items-center justify-center z-[200]">
+        <div class="relative">
+            <div class="w-24 h-24 border-4 border-orange-100 border-t-[#ee4d2d] rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i data-lucide="sparkles" class="text-orange-400 w-8 h-8 animate-pulse"></i>
+            </div>
+        </div>
+        <p class="mt-8 font-bold text-slate-800 text-xl tracking-tight">กำลังประมวลผลข้อมูลรายงาน...</p>
+    </div>
+
+    <!-- ระบบแจ้งเตือน -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-[2rem] shadow-2xl z-[300] opacity-0 pointer-events-none transition-all duration-500 flex items-center gap-3">
+        <i data-lucide="check-circle" class="text-emerald-400 w-5 h-5"></i>
+        <span id="toastMsg" class="font-bold text-sm">ทำรายการสำเร็จ</span>
+    </div>
+
+    <script id="embeddedData">
+        // ข้อมูลที่จะถูกฝังเมื่อส่งออกให้ลูกค้า
+        window.__PRELOADED_DATA__ = null;
+        window.__PRELOADED_STATS__ = null;
+    </script>
 
     <script>
         lucide.createIcons();
 
-        let pathStats = {};
-        let totals = { base: 0, extra: 0, order: 0, net: 0 };
-        let sortedData = [];
-        let myChart = null;
+        let chartInstance = null;
+        let processedData = [];
+        let summaryStats = {};
 
-        const ghSettings = {
-            token: localStorage.getItem('gh_token') || '',
-            owner: localStorage.getItem('gh_owner') || '',
-            repo: localStorage.getItem('gh_repo') || ''
+        const config = {
+            token: localStorage.getItem('tor_gh_token') || '',
+            owner: localStorage.getItem('tor_gh_owner') || '',
+            repo: localStorage.getItem('tor_gh_repo') || ''
         };
 
-        // --- ระบบโหลดรายงานจากลิงก์ให้ลูกค้าดู ---
-        window.addEventListener('load', async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const reportUrl = urlParams.get('report');
-            
-            if (reportUrl) {
-                document.getElementById('uploadContainer').classList.add('hidden');
-                document.getElementById('loading').classList.replace('hidden', 'flex');
-                document.getElementById('loadingText').innerText = "กำลังโหลดรายงานของท่าน...";
-
-                try {
-                    const res = await fetch(reportUrl);
-                    if (!res.ok) throw new Error("ลิงก์รายงานไม่ถูกต้องหรือหมดอายุ");
-                    const payload = await res.json();
-
-                    // กู้คืนข้อมูลมาเก็บในตัวแปรระบบ
-                    totals = payload.summary.totals;
-                    sortedData = payload.details.map(d => [
-                        JSON.stringify(d.subid.split(' > ')),
-                        {
-                            ids: d.subid.split(' > '),
-                            order: d.order_value,
-                            base: d.base_comm,
-                            extra: d.extra_comm,
-                            net: d.commission
-                        }
-                    ]);
-
-                    // ซ่อนเมนูที่ลูกค้าไม่จำเป็นต้องใช้
-                    document.getElementById('exportArea').classList.add('hidden');
-                    document.getElementById('btnSettings').classList.add('hidden');
-                    document.getElementById('appTitle').innerHTML = `รายงานของ <span class="shopee-orange">${payload.summary.client}</span>`;
-                    
-                    // แสดง Dashboard
-                    renderDashboard(true);
-                    showToast(`โหลดรายงานสำเร็จ!`);
-                } catch (err) {
-                    alert(err.message);
-                    document.getElementById('uploadContainer').classList.remove('hidden');
-                } finally {
-                    document.getElementById('loading').classList.replace('flex', 'hidden');
-                    document.getElementById('resetBtn').classList.remove('hidden'); // ให้ลูกค้ากดกลับหน้าแรกได้
-                }
+        // ตรวจสอบว่ามีข้อมูลฝังมาหรือไม่ (สำหรับลูกค้าเปิดลิงก์)
+        window.onload = () => {
+            if (window.__PRELOADED_DATA__ && window.__PRELOADED_STATS__) {
+                processedData = window.__PRELOADED_DATA__;
+                summaryStats = window.__PRELOADED_STATS__;
+                document.body.classList.add('shared-view');
+                renderDashboard();
             }
-        });
+        };
 
-        // UI Interactions
-        function toggleGithubModal() {
-            const modal = document.getElementById('githubModal');
-            document.getElementById('ghToken').value = ghSettings.token;
-            document.getElementById('ghOwner').value = ghSettings.owner;
-            document.getElementById('ghRepo').value = ghSettings.repo;
-            modal.classList.toggle('hidden');
+        // UI ช่วยเหลือ
+        function toggleGithubModal() { document.getElementById('githubModal').classList.toggle('hidden'); }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.replace('opacity-0', 'opacity-100');
+            setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
         }
-
-        function saveGithubSettings() {
-            ghSettings.token = document.getElementById('ghToken').value.trim();
-            ghSettings.owner = document.getElementById('ghOwner').value.trim();
-            ghSettings.repo = document.getElementById('ghRepo').value.trim();
-            
-            localStorage.setItem('gh_token', ghSettings.token);
-            localStorage.setItem('gh_owner', ghSettings.owner);
-            localStorage.setItem('gh_repo', ghSettings.repo);
-            
-            showToast("บันทึกการตั้งค่าเรียบร้อย");
+        function saveSettings() {
+            config.token = document.getElementById('ghToken').value.trim();
+            config.owner = document.getElementById('ghOwner').value.trim();
+            config.repo = document.getElementById('ghRepo').value.trim();
+            localStorage.setItem('tor_gh_token', config.token);
+            localStorage.setItem('tor_gh_owner', config.owner);
+            localStorage.setItem('tor_gh_repo', config.repo);
+            showToast("บันทึกการตั้งค่า GitHub แล้ว");
             toggleGithubModal();
         }
 
-        function toggleExportMenu() {
-            document.getElementById('exportDropdown').classList.toggle('hidden');
+        const cleanNum = (val) => {
+            if (!val) return 0;
+            let clean = val.toString().replace(/,/g, '').replace(/฿/g, '').replace(/%/g, '').trim();
+            return parseFloat(clean) || 0;
+        };
+
+        document.getElementById('fileInput').addEventListener('change', (e) => handleFile(e.target.files[0]));
+        
+        const dropZone = document.getElementById('dropZone');
+        if (dropZone) {
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-orange-50/50'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-orange-50/50'));
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('bg-orange-50/50');
+                handleFile(e.dataTransfer.files[0]);
+            });
         }
 
-        function showToast(msg, duration = 3000) {
-            const t = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            t.classList.add('opacity-100', 'bottom-12');
-            t.classList.remove('opacity-0', 'bottom-8');
-            setTimeout(() => {
-                t.classList.remove('opacity-100', 'bottom-12');
-                t.classList.add('opacity-0', 'bottom-8');
-            }, duration);
+        function handleFile(file) {
+            if (!file) return;
+            document.getElementById('loading').classList.remove('hidden');
+
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    processCSV(results.data);
+                    document.getElementById('loading').classList.add('hidden');
+                }
+            });
         }
 
-        // Data Processing
-        document.getElementById('fileInput').addEventListener('change', async (e) => {
-            const files = e.target.files;
-            if (!files.length) return;
+        function processCSV(data) {
+            const totalRow = data.find(r => r['BIG1'] === 'รวม');
+            const dailyRows = data.filter(r => r['BIG1'] && r['BIG1'].startsWith('202') && cleanNum(r['กำไร']) !== 0);
+            const sortedData = [...dailyRows].sort((a, b) => new Date(a['BIG1']) - new Date(b['BIG1']));
+            processedData = sortedData;
 
-            document.getElementById('loadingText').innerText = "กำลังวิเคราะห์ข้อมูล...";
-            document.getElementById('loading').classList.replace('hidden', 'flex');
-            pathStats = {}; totals = { base: 0, extra: 0, order: 0, net: 0 };
-
-            for (let f of files) {
-                await new Promise(resolve => {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        const wb = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
-                        const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-                        json.forEach(row => {
-                            const ids = [(row['Sub_id1']||''), (row['Sub_id2']||''), (row['Sub_id3']||''), (row['Sub_id4']||''), (row['Sub_id5']||'')].map(s => s.toString().trim());
-                            const key = JSON.stringify(ids);
-                            const price = parseFloat(row['ราคา(฿)'] || row['Price'] || 0);
-                            const raw = parseFloat(row['ค่าคอมมิชชั่นสุทธิ(฿)'] || row['คอมมิชชั่นคำสั่งซื้อโดยรวม(฿)'] || 0);
-                            
-                            const netOrder = price * 0.8;
-                            const target = Math.min(price * 0.10, 225); // 10% Extra
-                            const netBase = raw * 0.8;
-                            const netExtra = Math.max(0, (target * 0.8) - netBase);
-                            const rowNet = netBase + netExtra;
-
-                            if (!pathStats[key]) pathStats[key] = { order: 0, net: 0, base: 0, extra: 0, ids };
-                            pathStats[key].order += netOrder;
-                            pathStats[key].base += netBase;
-                            pathStats[key].extra += netExtra;
-                            pathStats[key].net += rowNet;
-
-                            totals.order += netOrder; totals.base += netBase; totals.extra += netExtra; totals.net += rowNet;
-                        });
-                        resolve();
-                    };
-                    reader.readAsArrayBuffer(f);
-                });
+            if (totalRow) {
+                summaryStats = {
+                    profit: cleanNum(totalRow['กำไร']),
+                    ads: cleanNum(totalRow['ค่า Ads']),
+                    totalComm: cleanNum(totalRow['ค่าคอมมิชชั่นรวม']),
+                    sales: cleanNum(totalRow['มูลค่าคำสั่งซื้อ (บาท)']),
+                    roas: cleanNum(totalRow['ROAS'])
+                };
+            } else {
+                summaryStats = dailyRows.reduce((acc, curr) => {
+                    acc.profit += cleanNum(curr['กำไร']);
+                    acc.ads += cleanNum(curr['ค่า Ads']);
+                    acc.totalComm += cleanNum(curr['ค่าคอมมิชชั่นรวม']);
+                    acc.sales += cleanNum(curr['มูลค่าคำสั่งซื้อ (บาท)']);
+                    return acc;
+                }, { profit: 0, ads: 0, totalComm: 0, sales: 0 });
+                summaryStats.roas = summaryStats.ads > 0 ? (summaryStats.sales / summaryStats.ads).toFixed(2) : 0;
             }
 
-            sortedData = Object.entries(pathStats).sort((a, b) => b[1].net - a[1].net);
-            renderDashboard(false);
-            document.getElementById('loading').classList.replace('flex', 'hidden');
-        });
+            renderDashboard();
+        }
 
-        function renderDashboard(isClientView) {
-            document.getElementById('uploadContainer').classList.add('hidden');
+        function renderDashboard() {
+            const upSec = document.getElementById('uploadSection');
+            if(upSec) upSec.classList.add('hidden');
             document.getElementById('dashboardContent').classList.remove('hidden');
-            
-            if (!isClientView) {
-                document.getElementById('exportArea').classList.remove('hidden');
-            }
-            document.getElementById('resetBtn').classList.remove('hidden');
+            const navAct = document.getElementById('navActions');
+            if(navAct) navAct.classList.remove('hidden');
 
-            document.getElementById('statComm').innerText = Math.round(totals.net).toLocaleString() + ' ฿';
-            document.getElementById('statOrderValue').innerText = Math.round(totals.order).toLocaleString() + ' ฿';
-            document.getElementById('statBase').innerText = Math.round(totals.base).toLocaleString() + ' ฿';
-            document.getElementById('statExtra').innerText = Math.round(totals.extra).toLocaleString() + ' ฿';
+            document.getElementById('statProfit').innerText = summaryStats.profit.toLocaleString() + ' ฿';
+            document.getElementById('statAds').innerText = summaryStats.ads.toLocaleString() + ' ฿';
+            document.getElementById('statComm').innerText = summaryStats.totalComm.toLocaleString() + ' ฿';
+            document.getElementById('statRoas').innerText = summaryStats.roas.toLocaleString() + 'x';
 
-            updateChart();
+            const adRatio = summaryStats.sales > 0 ? ((summaryStats.ads / summaryStats.sales) * 100).toFixed(1) : 0;
+            const margin = summaryStats.sales > 0 ? ((summaryStats.profit / summaryStats.sales) * 100).toFixed(1) : 0;
+
+            document.getElementById('adRatioText').innerText = adRatio + '%';
+            document.getElementById('adRatioBar').style.width = adRatio + '%';
+            document.getElementById('marginText').innerText = margin + '%';
+            document.getElementById('marginBar').style.width = margin + '%';
+
+            let msg = `รายงานแสดงกำไรสุทธิทั้งหมด ${summaryStats.profit.toLocaleString()} บาท `;
+            msg += summaryStats.roas >= 2.3 ? "แคมเปญมีประสิทธิภาพดีเยี่ยม (Profit Optimized)" : "แคมเปญอยู่ในระดับคงที่ (Stable Growth)";
+            document.getElementById('performanceSummary').innerText = msg;
+
+            renderChart();
             renderTable();
         }
 
-        function updateChart() {
-            const labels = sortedData.map(i => i[1].ids.filter(x => x).join(' > ') || 'Direct Link');
-            const values = sortedData.map(i => Math.round(i[1].net));
-            const ctx = document.getElementById('top10Chart').getContext('2d');
-            const colors = ['#ee4d2d', '#3b82f6', '#10b981', '#6366f1', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#64748b', '#f43f5e'];
+        function renderChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const labels = processedData.map(d => d['BIG1']);
+            const profitData = processedData.map(d => cleanNum(d['กำไร']));
+            const adsData = processedData.map(d => cleanNum(d['ค่า Ads']));
 
-            if (myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
                 data: {
                     labels,
-                    datasets: [{ data: values, backgroundColor: labels.map((_, i) => colors[i % colors.length]), borderWidth: 0, hoverOffset: 15 }]
+                    datasets: [
+                        {
+                            label: 'กำไรสุทธิ',
+                            data: profitData,
+                            borderColor: '#ee4d2d',
+                            backgroundColor: 'rgba(238, 77, 45, 0.15)',
+                            borderWidth: 4,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#ee4d2d',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'ค่าโฆษณา',
+                            data: adsData,
+                            borderColor: '#cbd5e1',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }
+                    ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold', family: 'Kanit' },
+                            bodyFont: { family: 'Kanit' },
+                            cornerRadius: 15
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { size: 11, family: 'Kanit' }, color: '#94a3b8' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { font: { size: 11, family: 'Kanit' }, color: '#94a3b8' }
+                        }
+                    }
+                }
             });
-
-            const legend = document.getElementById('chartLegend');
-            legend.innerHTML = sortedData.map((item, i) => {
-                const perc = totals.net > 0 ? ((item[1].net / totals.net) * 100).toFixed(1) : 0;
-                return `
-                    <div class="flex items-center justify-between text-[11px] py-1">
-                        <div class="flex items-center gap-2 overflow-hidden mr-2">
-                            <div class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: ${colors[i % colors.length]}"></div>
-                            <span class="truncate text-slate-500 font-medium">${labels[i]}</span>
-                        </div>
-                        <span class="font-bold text-slate-700 ml-auto">${perc}%</span>
-                    </div>
-                `;
-            }).join('');
         }
 
         function renderTable(filter = '') {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            sortedData.filter(i => i[1].ids.join(' ').toLowerCase().includes(filter.toLowerCase())).forEach(([k, d], idx) => {
-                const perc = totals.net > 0 ? ((d.net / totals.net) * 100).toFixed(1) : 0;
-                const path = d.ids.filter(x => x).map(id => `<span class="sub-id-step">${id}</span>`).join(' <span class="text-[8px] text-slate-200">&#10140;</span> ');
+            const displayList = [...processedData].reverse().filter(d => d['BIG1'].includes(filter));
+
+            displayList.forEach(d => {
+                const profit = cleanNum(d['กำไร']);
+                const ads = cleanNum(d['ค่า Ads']);
+                const comm = cleanNum(d['ค่าคอมมิชชั่นรวม']);
+                const sales = cleanNum(d['มูลค่าคำสั่งซื้อ (บาท)']);
+                const roas = cleanNum(d['ROAS']);
+
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-5 text-center font-bold text-slate-300">#${idx+1}</td>
-                        <td class="px-6 py-5">${path || '<span class="text-slate-300 italic text-xs">Direct Link</span>'}</td>
-                        <td class="px-6 py-5 text-right font-semibold">${Math.round(d.order).toLocaleString()}</td>
-                        <td class="px-6 py-5 text-right font-black text-shopee">${Math.round(d.net).toLocaleString()} ฿</td>
-                        <td class="px-6 py-5 text-right font-bold text-slate-400 bg-slate-50/30">${perc}%</td>
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">${d['BIG1']}</td>
+                        <td class="px-10 py-6 text-right text-slate-600">${sales.toLocaleString()}</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">${comm.toLocaleString()}</td>
+                        <td class="px-10 py-6 text-right text-slate-400">${ads.toLocaleString()}</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">${profit.toLocaleString()} ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">${roas.toFixed(2)}x</span>
+                        </td>
                     </tr>
                 `;
             });
         }
 
-        // GitHub Integration
-        async function handleGithubUpload() {
-            toggleExportMenu();
-            if (!ghSettings.token || !ghSettings.owner || !ghSettings.repo) {
+        const tableSearch = document.getElementById('tableSearch');
+        if(tableSearch) tableSearch.addEventListener('input', (e) => renderTable(e.target.value));
+
+        // ฟังก์ชันสำคัญ: การสร้างหน้าเว็บแชร์ให้ลูกค้า (ใช้ GitHub Pages URL)
+        async function syncToCloud() {
+            if (!config.token || !config.owner || !config.repo) {
                 toggleGithubModal();
-                showToast("กรุณาตั้งค่า GitHub API ก่อนใช้งาน", 5000);
+                showToast("กรุณาตั้งค่า GitHub API ก่อนเริ่มใช้งาน");
                 return;
             }
 
-            const clientName = prompt("กรุณาระบุชื่อลูกค้าหรือเลขที่รายงาน เพื่อใช้แสดงบนหน้าเว็บลูกค้า:");
-            if (!clientName) return;
+            const clientLabel = prompt("กรุณาระบุชื่อรายงาน (จะแสดงเป็นชื่อไฟล์):");
+            if (!clientLabel) return;
 
-            document.getElementById('loadingText').innerText = "กำลังสร้างลิงก์สำหรับลูกค้า...";
-            document.getElementById('loading').classList.replace('hidden', 'flex');
+            document.getElementById('loading').classList.remove('hidden');
             
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const fileName = `reports/${clientName.replace(/\s+/g, '_')}_${timestamp}.json`;
+            // ดึง HTML ปัจจุบันทั้งหมด
+            let fullHtml = document.documentElement.outerHTML;
             
-            // เตรียมข้อมูลที่จะเซฟ (เพิ่ม base_comm, extra_comm ไว้คำนวณกราฟ)
-            const payload = {
-                summary: {
-                    timestamp: new Date().toLocaleString('th-TH'),
-                    client: clientName,
-                    totals: totals
-                },
-                details: sortedData.map(([k, d], i) => ({
-                    rank: i + 1,
-                    subid: d.ids.filter(x => x).join(' > '),
-                    order_value: Math.round(d.order),
-                    base_comm: Math.round(d.base),
-                    extra_comm: Math.round(d.extra),
-                    commission: Math.round(d.net),
-                    percent: totals.net > 0 ? ((d.net / totals.net) * 100).toFixed(1) + "%" : "0.0%"
-                }))
-            };
+            // เตรียมสคริปต์ฝังข้อมูล
+            const dataScript = `
+    <script id="embeddedData">
+        window.__PRELOADED_DATA__ = ${JSON.stringify(processedData)};
+        window.__PRELOADED_STATS__ = ${JSON.stringify(summaryStats)};
+    <\/script>`;
 
-            const url = `https://api.github.com/repos/${ghSettings.owner}/${ghSettings.repo}/contents/${fileName}`;
-            const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+            // แทนที่ส่วนของ embeddedData เดิมด้วยข้อมูลจริง
+            const sharedHtml = fullHtml.replace(/<script id="embeddedData">[\s\S]*?<\/script>/, dataScript);
+
+            const ts = Date.now();
+            const fileName = `reports/${clientLabel.replace(/\s+/g, '_')}_${ts}.html`;
+            const b64Content = btoa(unescape(encodeURIComponent(sharedHtml)));
+
+            const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${fileName}`;
 
             try {
                 const response = await fetch(url, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token ${ghSettings.token}`,
+                        'Authorization': `token ${config.token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: `Upload report for ${clientName}`,
-                        content: contentBase64
+                        message: `สร้างรายงานแดชบอร์ดสำหรับ ${clientLabel}`,
+                        content: b64Content
                     })
                 });
 
                 if (response.ok) {
-                    // สร้าง URL สำหรับให้ลูกค้าเข้ามาดูรายงานในเว็บนี้
-                    const rawUrl = `https://raw.githubusercontent.com/${ghSettings.owner}/${ghSettings.repo}/main/${fileName}`;
-                    const appUrl = window.location.href.split('?')[0]; // URL ปัจจุบันของหน้าเว็บ
-                    const shareLink = `${appUrl}?report=${encodeURIComponent(rawUrl)}`;
+                    // สร้าง URL สำหรับ GitHub Pages (ต้องเปิดใช้งาน GitHub Pages ใน Repo Settings ก่อน)
+                    const viewUrl = `https://${config.owner}.github.io/${config.repo}/${fileName}`;
+                    showToast("สร้างหน้าแดชบอร์ดสำเร็จ! คัดลอกลิงก์แล้ว");
                     
-                    // Copy to clipboard
                     const el = document.createElement('textarea');
-                    el.value = shareLink;
+                    el.value = viewUrl;
                     document.body.appendChild(el);
                     el.select();
                     document.execCommand('copy');
                     document.body.removeChild(el);
 
-                    showToast("สร้างลิงก์สำเร็จ! คัดลอกลิงก์เรียบร้อยแล้ว", 5000);
-                    
-                    // เด้งหน้าต่างยืนยันและให้ลิงก์ตรงๆ เผื่อพลาด
-                    setTimeout(() => {
-                        prompt("ลิงก์รายงานของคุณ (ถูกคัดลอกไว้แล้ว สามารถกดส่งให้ลูกค้าได้เลย):", shareLink);
-                    }, 500);
-
+                    // แจ้งเตือนผู้ใช้ให้ไปเปิด GitHub Pages
+                    alert("สร้างรายงานสำเร็จ!\n\nลิงก์สำหรับส่งให้ลูกค้าคือ:\n" + viewUrl + "\n\n(หากเปิดแล้วยังไม่ขึ้นหน้าเว็บ อย่าลืมไปที่ Settings > Pages ใน GitHub ของคุณ แล้วเลือก Branch เป็น 'main' นะครับ)");
+                    window.open(viewUrl, '_blank');
                 } else {
-                    const error = await response.json();
-                    alert(`อัปโหลดไม่สำเร็จ กรุณาเช็คการตั้งค่า GitHub: ${error.message}`);
+                    const err = await response.json();
+                    alert("GitHub Error: " + err.message);
                 }
             } catch (err) {
-                alert(`Error: ${err.message}`);
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + err.message);
             } finally {
-                document.getElementById('loading').classList.replace('flex', 'hidden');
+                document.getElementById('loading').classList.add('hidden');
             }
         }
-
-        async function exportData(format) {
-            toggleExportMenu();
-            const timestamp = new Date().toISOString().split('T')[0];
-            const name = `Report_${timestamp}`;
-            const data = sortedData.map(([k, d], i) => ({
-                "อันดับ": i + 1,
-                "SubID": d.ids.filter(x => x).join(' > '),
-                "ยอดขาย": Math.round(d.order),
-                "คอมมิชชั่นสุทธิ": Math.round(d.net),
-                "สัดส่วน (%)": ((d.net / totals.net) * 100).toFixed(1) + "%"
-            }));
-
-            if (format === 'xlsx') {
-                const ws = XLSX.utils.json_to_sheet(data);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "ProfitAnalysis");
-                XLSX.writeFile(wb, `${name}.xlsx`);
-            } else if (format === 'pdf') {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'pt', 'a4');
-                doc.text("Shopee Affiliate Income Summary", 40, 40);
-                doc.autoTable({
-                    head: [["Rank", "SubID", "Sales", "Comm", "%"]],
-                    body: data.map(r => [r["อันดับ"], r["SubID"], r["ยอดขาย"].toLocaleString(), r["คอมมิชชั่นสุทธิ"].toLocaleString(), r["สัดส่วน (%)"]]),
-                    startY: 60,
-                    theme: 'grid',
-                    headStyles: { fillColor: [238, 77, 45] }
-                });
-                doc.save(`${name}.pdf`);
-            }
-        }
-
-        document.getElementById('tableSearch').addEventListener('input', (e) => renderTable(e.target.value));
     </script>
 </body>
 </html>

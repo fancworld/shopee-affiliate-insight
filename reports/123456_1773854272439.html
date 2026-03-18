@@ -1,0 +1,813 @@
+<html lang="th"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Orange Room | แดชบอร์ดสรุปกำไรรายวัน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600;700&display=swap');
+        
+        :root {
+            --shopee: #ee4d2d;
+            --shopee-light: #ff7337;
+            --shopee-bg: #fff5f2;
+        }
+
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background: var(--shopee-bg);
+            color: #334155;
+        }
+
+        .shopee-gradient {
+            background: linear-gradient(135deg, var(--shopee) 0%, var(--shopee-light) 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(238, 77, 45, 0.1), 0 8px 10px -6px rgba(238, 77, 45, 0.05);
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(238, 77, 45, 0.1);
+        }
+
+        .animate-pop {
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--shopee); }
+        
+        /* สไตล์พิเศษสำหรับมุมมองแชร์ให้ลูกค้า */
+        .shared-view .admin-only { display: none !important; }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.-right-10{right:-2.5rem}.-top-10{top:-2.5rem}.bottom-10{bottom:2.5rem}.left-1\/2{left:50%}.left-4{left:1rem}.right-0{right:0px}.top-0{top:0px}.top-1\/2{top:50%}.z-10{z-index:10}.z-50{z-index:50}.z-\[100\]{z-index:100}.z-\[200\]{z-index:200}.z-\[300\]{z-index:300}.mx-auto{margin-left:auto;margin-right:auto}.mb-10{margin-bottom:2.5rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.ml-1{margin-left:0.25rem}.mt-10{margin-top:2.5rem}.mt-2{margin-top:0.5rem}.mt-8{margin-top:2rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-12{height:3rem}.h-16{height:4rem}.h-24{height:6rem}.h-3{height:0.75rem}.h-32{height:8rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-80{height:20rem}.h-full{height:100%}.min-h-\[60vh\]{min-height:60vh}.min-h-screen{min-height:100vh}.w-12{width:3rem}.w-16{width:4rem}.w-24{width:6rem}.w-3{width:0.75rem}.w-32{width:8rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-8{width:2rem}.w-full{width:100%}.max-w-7xl{max-width:80rem}.max-w-md{max-width:28rem}.flex-grow{flex-grow:1}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-y-10 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-50 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(248 250 252 / var(--tw-divide-opacity, 1))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.rounded-2xl{border-radius:1rem}.rounded-\[2\.5rem\]{border-radius:2.5rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-\[3\.5rem\]{border-radius:3.5rem}.rounded-\[3rem\]{border-radius:3rem}.rounded-\[4rem\]{border-radius:4rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-4{border-width:4px}.border-t-8{border-top-width:8px}.border-dashed{border-style:dashed}.border-none{border-style:none}.border-orange-100{--tw-border-opacity:1;border-color:rgb(255 237 213 / var(--tw-border-opacity, 1))}.border-orange-200{--tw-border-opacity:1;border-color:rgb(254 215 170 / var(--tw-border-opacity, 1))}.border-t-\[\#ee4d2d\]{--tw-border-opacity:1;border-top-color:rgb(238 77 45 / var(--tw-border-opacity, 1))}.border-t-indigo-500{--tw-border-opacity:1;border-top-color:rgb(99 102 241 / var(--tw-border-opacity, 1))}.border-t-orange-400{--tw-border-opacity:1;border-top-color:rgb(251 146 60 / var(--tw-border-opacity, 1))}.border-t-rose-500{--tw-border-opacity:1;border-top-color:rgb(244 63 94 / var(--tw-border-opacity, 1))}.bg-\[\#ee4d2d\]{--tw-bg-opacity:1;background-color:rgb(238 77 45 / var(--tw-bg-opacity, 1))}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-orange-100{--tw-bg-opacity:1;background-color:rgb(255 237 213 / var(--tw-bg-opacity, 1))}.bg-orange-50{--tw-bg-opacity:1;background-color:rgb(255 247 237 / var(--tw-bg-opacity, 1))}.bg-rose-500{--tw-bg-opacity:1;background-color:rgb(244 63 94 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/40{background-color:rgb(15 23 42 / 0.4)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.p-10{padding:2.5rem}.p-12{padding:3rem}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-10{padding-left:2.5rem;padding-right:2.5rem}.px-12{padding-left:3rem;padding-right:3rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-16{padding-top:4rem;padding-bottom:4rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.pl-12{padding-left:3rem}.pr-6{padding-right:1.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-base{font-size:1rem;line-height:1.5rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-light{font-weight:300}.font-medium{font-weight:500}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.tracking-\[0\.2em\]{letter-spacing:0.2em}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.tracking-widest{letter-spacing:0.1em}.text-\[\#ee4d2d\]{--tw-text-opacity:1;color:rgb(238 77 45 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.text-indigo-500{--tw-text-opacity:1;color:rgb(99 102 241 / var(--tw-text-opacity, 1))}.text-orange-400{--tw-text-opacity:1;color:rgb(251 146 60 / var(--tw-text-opacity, 1))}.text-orange-600{--tw-text-opacity:1;color:rgb(234 88 12 / var(--tw-text-opacity, 1))}.text-rose-500{--tw-text-opacity:1;color:rgb(244 63 94 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.opacity-10{opacity:0.1}.opacity-50{opacity:0.5}.opacity-100{opacity:1}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-orange-100{--tw-shadow-color:#ffedd5;--tw-shadow:var(--tw-shadow-colored)}.shadow-orange-200{--tw-shadow-color:#fed7aa;--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.backdrop-blur-2xl{--tw-backdrop-blur:blur(40px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-1000{transition-duration:1000ms}.duration-500{transition-duration:500ms}.duration-700{transition-duration:700ms}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-orange-50:hover{--tw-bg-opacity:1;background-color:rgb(255 247 237 / var(--tw-bg-opacity, 1))}.hover\:bg-orange-50\/50:hover{background-color:rgb(255 247 237 / 0.5)}.hover\:bg-rose-50:hover{--tw-bg-opacity:1;background-color:rgb(255 241 242 / var(--tw-bg-opacity, 1))}.hover\:bg-orange-50\/40:hover{background-color:rgb(255 247 237 / 0.4)}.hover\:text-orange-600:hover{--tw-text-opacity:1;color:rgb(234 88 12 / var(--tw-text-opacity, 1))}.hover\:text-rose-500:hover{--tw-text-opacity:1;color:rgb(244 63 94 / var(--tw-text-opacity, 1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-orange-100:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(255 237 213 / var(--tw-ring-opacity, 1))}.group:hover .group-hover\:rotate-12{--tw-rotate:12deg;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:scale-150{--tw-scale-x:1.5;--tw-scale-y:1.5;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:border-\[\#ee4d2d\]{--tw-border-opacity:1;border-color:rgb(238 77 45 / var(--tw-border-opacity, 1))}.group:hover .group-hover\:text-orange-600{--tw-text-opacity:1;color:rgb(234 88 12 / var(--tw-text-opacity, 1))}@media (min-width: 768px){.md\:w-80{width:20rem}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}}@media (min-width: 1024px){.lg\:col-span-4{grid-column:span 4 / span 4}.lg\:col-span-8{grid-column:span 8 / span 8}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.lg\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.lg\:p-10{padding:2.5rem}.lg\:px-24{padding-left:6rem;padding-right:6rem}.lg\:text-5xl{font-size:3rem;line-height:1}}</style></head>
+<body class="antialiased min-h-screen">
+
+    <!-- แถบนำทาง (Navbar) -->
+    <nav class="sticky top-0 z-50 glass-nav px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="shopee-gradient p-2 rounded-2xl shadow-lg shadow-orange-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="pie-chart" aria-hidden="true" class="lucide lucide-pie-chart text-white w-6 h-6"><path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"></path><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-slate-800">THE ORANGE <span class="text-[#ee4d2d]">ROOM</span></h1>
+                <p class="text-[10px] font-bold text-orange-400 tracking-widest uppercase">รายงานวิเคราะห์กำไร</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-3 admin-only">
+            <button onclick="toggleGithubModal()" class="p-2.5 rounded-xl hover:bg-orange-50 text-slate-400 hover:text-orange-600 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings-2" aria-hidden="true" class="lucide lucide-settings-2 w-5 h-5"><path d="M14 17H5"></path><path d="M19 7h-9"></path><circle cx="17" cy="17" r="3"></circle><circle cx="7" cy="7" r="3"></circle></svg>
+            </button>
+            <div id="navActions" class="flex items-center gap-3">
+                <button onclick="location.reload()" class="p-2.5 rounded-xl hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="refresh-ccw" aria-hidden="true" class="lucide lucide-refresh-ccw w-5 h-5"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 16h5v5"></path></svg>
+                </button>
+                <button onclick="syncToCloud()" class="shopee-gradient text-white px-6 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-orange-200 flex items-center gap-2 hover:scale-105 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="external-link" aria-hidden="true" class="lucide lucide-external-link w-4 h-4"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg> ส่งรายงานให้ลูกค้า
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 lg:p-10 space-y-10">
+        
+        <!-- ส่วนอัปโหลดไฟล์ (Admin Only) -->
+        <section id="uploadSection" class="min-h-[60vh] flex flex-col items-center justify-center text-center admin-only hidden">
+            <div class="mb-8 p-10 bg-white rounded-[3rem] card-shadow relative overflow-hidden group">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-orange-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-spreadsheet" aria-hidden="true" class="lucide lucide-file-spreadsheet w-16 h-16 text-[#ee4d2d] mx-auto relative z-10"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M8 13h2"></path><path d="M14 13h2"></path><path d="M8 17h2"></path><path d="M14 17h2"></path></svg>
+            </div>
+            <h2 class="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 text-slate-800">วิเคราะห์กำไร <span class="text-[#ee4d2d]">The Orange Room</span></h2>
+            <p class="text-slate-400 max-w-md mx-auto mb-10 text-lg font-light leading-relaxed">แปลงข้อมูลจาก Shopee ให้กลายเป็นรายงานที่สวยงามและดูง่ายในคลิกเดียว</p>
+            
+            <label id="dropZone" class="cursor-pointer group">
+                <div class="bg-white border-2 border-dashed border-orange-200 group-hover:border-[#ee4d2d] px-12 lg:px-24 py-16 rounded-[4rem] transition-all duration-500 hover:bg-orange-50/50 card-shadow">
+                    <div class="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:rotate-12 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload-cloud" aria-hidden="true" class="lucide lucide-upload-cloud text-[#ee4d2d] w-8 h-8"><path d="M12 13v8"></path><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="m8 17 4-4 4 4"></path></svg>
+                    </div>
+                    <p class="text-xl font-bold text-slate-700">เลือกไฟล์ CSV รายงานกำไร</p>
+                    <p class="text-slate-400 text-sm mt-2 font-medium tracking-wide">หรือลากไฟล์มาวางที่นี่เพื่อเริ่มต้น</p>
+                    <input type="file" id="fileInput" class="hidden" accept=".csv">
+                </div>
+            </label>
+        </section>
+
+        <!-- ส่วนของแดชบอร์ด (Dashboard Content) -->
+        <section id="dashboardContent" class="space-y-10 animate-pop">
+            
+            <!-- การ์ดสถิติ (Summary Cards) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-8 rounded-[2.5rem] card-shadow border-t-8 border-t-[#ee4d2d]">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">กำไรสุทธิ</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trending-up" aria-hidden="true" class="lucide lucide-trending-up text-emerald-500 w-5 h-5"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>
+                    </div>
+                    <h3 id="statProfit" class="text-4xl font-extrabold text-slate-800 tracking-tight">482,139 ฿</h3>
+                    <p class="text-[10px] text-slate-400 mt-2 font-medium">กำไรสุทธิหลังหักค่าใช้จ่ายทั้งหมด</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] card-shadow border-t-8 border-t-orange-400">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">ค่าคอมมิชชั่นรวม</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="coins" aria-hidden="true" class="lucide lucide-coins text-orange-400 w-5 h-5"><path d="M13.744 17.736a6 6 0 1 1-7.48-7.48"></path><path d="M15 6h1v4"></path><path d="m6.134 14.768.866-.5 2 3.464"></path><circle cx="16" cy="8" r="6"></circle></svg>
+                    </div>
+                    <h3 id="statComm" class="text-4xl font-extrabold text-slate-800 tracking-tight">836,095 ฿</h3>
+                    <p class="text-[10px] text-slate-400 mt-2 font-medium">รายได้ค่าคอมมิชชั่นทั้งหมดที่ได้รับ</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] card-shadow border-t-8 border-t-rose-500">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">ค่าโฆษณา (Ads)</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="zap" aria-hidden="true" class="lucide lucide-zap text-rose-500 w-5 h-5"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg>
+                    </div>
+                    <h3 id="statAds" class="text-4xl font-extrabold text-slate-800 tracking-tight">353,956 ฿</h3>
+                    <p class="text-[10px] text-slate-400 mt-2 font-medium">งบประมาณโฆษณาที่ใช้ไป</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] card-shadow border-t-8 border-t-indigo-500">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">ROAS รวม</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="activity" aria-hidden="true" class="lucide lucide-activity text-indigo-500 w-5 h-5"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>
+                    </div>
+                    <h3 id="statRoas" class="text-4xl font-extrabold text-slate-800 tracking-tight">2.36x</h3>
+                    <p class="text-[10px] text-slate-400 mt-2 font-medium">ประสิทธิภาพการทำกำไร (Sales/Ads)</p>
+                </div>
+            </div>
+
+            <!-- กราฟและข้อมูลเชิงลึก (Charts & Insights) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- กราฟแนวโน้ม -->
+                <div class="lg:col-span-8 bg-white p-8 lg:p-10 rounded-[3.5rem] card-shadow">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+                        <div>
+                            <h4 class="text-2xl font-bold text-slate-800">กราฟแนวโน้มผลประกอบการ</h4>
+                            <p class="text-sm text-slate-400">เปรียบเทียบกำไรและค่าโฆษณารายวัน</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                <span class="w-3 h-3 rounded-full bg-[#ee4d2d]"></span> กำไร
+                            </div>
+                            <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                <span class="w-3 h-3 rounded-full bg-slate-200"></span> ค่า ADS
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-80 w-full">
+                        <canvas id="trendChart" width="2097" height="960" style="display: block; box-sizing: border-box; height: 320px; width: 699px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- วิเคราะห์สัดส่วน -->
+                <div class="lg:col-span-4 bg-white p-10 rounded-[3.5rem] card-shadow flex flex-col">
+                    <h4 class="text-xl font-bold mb-8">วิเคราะห์ประสิทธิภาพ</h4>
+                    <div class="space-y-10 flex-grow">
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-xs font-bold text-slate-500">
+                                <span class="uppercase tracking-widest">สัดส่วนค่า Ads / ยอดขาย</span>
+                                <span id="adRatioText" class="text-rose-500">6.3%</span>
+                            </div>
+                            <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="adRatioBar" class="h-full bg-rose-500 transition-all duration-1000 shadow-sm" style="width: 6.3%;"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-xs font-bold text-slate-500">
+                                <span class="uppercase tracking-widest">อัตรากำไร (Profit Margin)</span>
+                                <span id="marginText" class="text-emerald-500">8.5%</span>
+                            </div>
+                            <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="marginBar" class="h-full bg-emerald-500 transition-all duration-1000 shadow-sm" style="width: 8.5%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-10 p-8 bg-orange-50 rounded-[2.5rem] border border-orange-100 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="award" aria-hidden="true" class="lucide lucide-award w-12 h-12 text-[#ee4d2d]"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg>
+                        </div>
+                        <p class="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em] mb-3">บทวิเคราะห์โดย AI</p>
+                        <p id="performanceSummary" class="text-sm font-medium text-slate-700 leading-relaxed">รายงานแสดงกำไรสุทธิทั้งหมด 482,139 บาท แคมเปญมีประสิทธิภาพดีเยี่ยม (Profit Optimized)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ตารางรายละเอียดรายวัน (Daily Table) -->
+            <div class="bg-white rounded-[3.5rem] card-shadow overflow-hidden">
+                <div class="p-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div>
+                        <h4 class="text-2xl font-bold tracking-tight text-slate-800">รายละเอียดผลกำไรรายวัน</h4>
+                        <p class="text-sm text-slate-400">ข้อมูลเจาะลึกที่สรุปมาจากไฟล์รายงานของคุณ</p>
+                    </div>
+                    <div class="relative w-full md:w-80">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" aria-hidden="true" class="lucide lucide-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                        <input type="text" id="tableSearch" placeholder="ค้นหาตามวันที่..." class="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-100 transition-all font-medium">
+                    </div>
+                </div>
+                
+                <div class="table-container custom-scrollbar overflow-x-auto">
+                    <table class="w-full text-left" id="mainTable">
+                        <thead class="sticky top-0 bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-widest z-10">
+                            <tr>
+                                <th class="px-10 py-6">วันที่</th>
+                                <th class="px-10 py-6 text-right">ยอดขาย (฿)</th>
+                                <th class="px-10 py-6 text-right">ค่าคอมรวม (฿)</th>
+                                <th class="px-10 py-6 text-right">ค่า Ads (฿)</th>
+                                <th class="px-10 py-6 text-right text-[#ee4d2d]">กำไรสุทธิ (฿)</th>
+                                <th class="px-10 py-6 text-right">ROAS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-50 text-sm font-medium text-slate-600">
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-17</td>
+                        <td class="px-10 py-6 text-right text-slate-600">220,494</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">36,665</td>
+                        <td class="px-10 py-6 text-right text-slate-400">14,586</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">22,078 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.51x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-16</td>
+                        <td class="px-10 py-6 text-right text-slate-600">240,515</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">35,256</td>
+                        <td class="px-10 py-6 text-right text-slate-400">18,015</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">17,241 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">1.96x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-15</td>
+                        <td class="px-10 py-6 text-right text-slate-600">330,446</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">49,087</td>
+                        <td class="px-10 py-6 text-right text-slate-400">16,471</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">32,617 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.98x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-14</td>
+                        <td class="px-10 py-6 text-right text-slate-600">284,262</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">42,179</td>
+                        <td class="px-10 py-6 text-right text-slate-400">20,827</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">21,352 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.03x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-13</td>
+                        <td class="px-10 py-6 text-right text-slate-600">291,089</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">43,481</td>
+                        <td class="px-10 py-6 text-right text-slate-400">20,157</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">23,324 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.16x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-12</td>
+                        <td class="px-10 py-6 text-right text-slate-600">425,301</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">53,396</td>
+                        <td class="px-10 py-6 text-right text-slate-400">24,320</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">29,076 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.20x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-11</td>
+                        <td class="px-10 py-6 text-right text-slate-600">361,470</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">57,441</td>
+                        <td class="px-10 py-6 text-right text-slate-400">24,673</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">32,768 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.33x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-10</td>
+                        <td class="px-10 py-6 text-right text-slate-600">347,981</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">55,151</td>
+                        <td class="px-10 py-6 text-right text-slate-400">24,743</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">30,408 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.23x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-09</td>
+                        <td class="px-10 py-6 text-right text-slate-600">332,557</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">50,669</td>
+                        <td class="px-10 py-6 text-right text-slate-400">12,945</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">37,724 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">3.91x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-08</td>
+                        <td class="px-10 py-6 text-right text-slate-600">333,550</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">56,292</td>
+                        <td class="px-10 py-6 text-right text-slate-400">12,542</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">43,750 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">4.49x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-07</td>
+                        <td class="px-10 py-6 text-right text-slate-600">391,581</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">56,671</td>
+                        <td class="px-10 py-6 text-right text-slate-400">17,329</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">39,342 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">3.27x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-06</td>
+                        <td class="px-10 py-6 text-right text-slate-600">376,948</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">49,220</td>
+                        <td class="px-10 py-6 text-right text-slate-400">23,289</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">25,931 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.11x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-05</td>
+                        <td class="px-10 py-6 text-right text-slate-600">394,568</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">64,307</td>
+                        <td class="px-10 py-6 text-right text-slate-400">26,543</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">37,764 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.42x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-04</td>
+                        <td class="px-10 py-6 text-right text-slate-600">341,603</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">55,351</td>
+                        <td class="px-10 py-6 text-right text-slate-400">30,885</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">24,466 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">1.79x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-03</td>
+                        <td class="px-10 py-6 text-right text-slate-600">699,306</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">89,066</td>
+                        <td class="px-10 py-6 text-right text-slate-400">32,827</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">56,239 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">2.71x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-02</td>
+                        <td class="px-10 py-6 text-right text-slate-600">170,195</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">25,474</td>
+                        <td class="px-10 py-6 text-right text-slate-400">18,184</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">7,291 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">1.40x</span>
+                        </td>
+                    </tr>
+                
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">2026-03-01</td>
+                        <td class="px-10 py-6 text-right text-slate-600">118,554</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">16,389</td>
+                        <td class="px-10 py-6 text-right text-slate-400">15,620</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">769 ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">1.05x</span>
+                        </td>
+                    </tr>
+                </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- หน้าต่างตั้งค่า GitHub (Admin Only) -->
+    <div id="githubModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onclick="toggleGithubModal()"></div>
+        <div class="bg-white rounded-[3rem] w-full max-w-md p-12 relative z-10 shadow-3xl animate-pop">
+            <h3 class="text-3xl font-bold mb-2 text-slate-800">ตั้งค่า <span class="text-[#ee4d2d]">GitHub Cloud</span></h3>
+            <p class="text-slate-400 text-sm mb-10 font-medium">สำหรับบันทึกรายงานและรับลิงก์ส่งต่อให้ลูกค้า</p>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Personal Access Token</label>
+                    <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-orange-100 transition-all font-medium">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">ชื่อผู้ใช้ (Username)</label>
+                        <input type="text" id="ghOwner" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-orange-100 font-medium">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">ชื่อคลัง (Repo Name)</label>
+                        <input type="text" id="ghRepo" class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-orange-100 font-medium">
+                    </div>
+                </div>
+                <button onclick="saveSettings()" class="w-full shopee-gradient text-white py-5 rounded-[2rem] font-bold shadow-xl shadow-orange-100 hover:scale-105 transition-all">บันทึกการตั้งค่า</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าต่างกำลังโหลด -->
+    <div id="loading" class="fixed inset-0 bg-white/90 backdrop-blur-2xl flex-col items-center justify-center z-[200]">
+        <div class="relative">
+            <div class="w-24 h-24 border-4 border-orange-100 border-t-[#ee4d2d] rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles text-orange-400 w-8 h-8 animate-pulse"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg>
+            </div>
+        </div>
+        <p class="mt-8 font-bold text-slate-800 text-xl tracking-tight">กำลังประมวลผลข้อมูลรายงาน...</p>
+    </div>
+
+    <!-- ระบบแจ้งเตือน -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-[2rem] shadow-2xl z-[300] opacity-100 pointer-events-none transition-all duration-500 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" aria-hidden="true" class="lucide lucide-check-circle text-emerald-400 w-5 h-5"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+        <span id="toastMsg" class="font-bold text-sm">บันทึกการตั้งค่า GitHub แล้ว</span>
+    </div>
+
+    
+    <script id="embeddedData">
+        window.__PRELOADED_DATA__ = [{"BIG1":"2026-03-01","จำนวนคำสั่งซื้อ":"272","มูลค่าคำสั่งซื้อ (บาท)":"118,554","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"1,948","ค่าคอมมิชชั่นพิเศษ":"14,441","ค่าคอมมิชชั่นรวม":"16,389","ค่า Ads":"15,620","กำไร":"769","ROAS":"1.05"},{"BIG1":"2026-03-02","จำนวนคำสั่งซื้อ":"385","มูลค่าคำสั่งซื้อ (บาท)":"170,195","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"2,734","ค่าคอมมิชชั่นพิเศษ":"22,740","ค่าคอมมิชชั่นรวม":"25,474","ค่า Ads":"18,184","กำไร":"7,291","ROAS":"1.40"},{"BIG1":"2026-03-03","จำนวนคำสั่งซื้อ":"1,121","มูลค่าคำสั่งซื้อ (บาท)":"699,306","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"11,150","ค่าคอมมิชชั่นพิเศษ":"77,916","ค่าคอมมิชชั่นรวม":"89,066","ค่า Ads":"32,827","กำไร":"56,239","ROAS":"2.71"},{"BIG1":"2026-03-04","จำนวนคำสั่งซื้อ":"842","มูลค่าคำสั่งซื้อ (บาท)":"341,603","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"5,682","ค่าคอมมิชชั่นพิเศษ":"49,669","ค่าคอมมิชชั่นรวม":"55,351","ค่า Ads":"30,885","กำไร":"24,466","ROAS":"1.79"},{"BIG1":"2026-03-05","จำนวนคำสั่งซื้อ":"963","มูลค่าคำสั่งซื้อ (บาท)":"394,568","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"6,787","ค่าคอมมิชชั่นพิเศษ":"57,520","ค่าคอมมิชชั่นรวม":"64,307","ค่า Ads":"26,543","กำไร":"37,764","ROAS":"2.42"},{"BIG1":"2026-03-06","จำนวนคำสั่งซื้อ":"885","มูลค่าคำสั่งซื้อ (บาท)":"376,948","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"5,975","ค่าคอมมิชชั่นพิเศษ":"43,245","ค่าคอมมิชชั่นรวม":"49,220","ค่า Ads":"23,289","กำไร":"25,931","ROAS":"2.11"},{"BIG1":"2026-03-07","จำนวนคำสั่งซื้อ":"902","มูลค่าคำสั่งซื้อ (บาท)":"391,581","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"6,100","ค่าคอมมิชชั่นพิเศษ":"50,571","ค่าคอมมิชชั่นรวม":"56,671","ค่า Ads":"17,329","กำไร":"39,342","ROAS":"3.27"},{"BIG1":"2026-03-08","จำนวนคำสั่งซื้อ":"921","มูลค่าคำสั่งซื้อ (บาท)":"333,550","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"5,439","ค่าคอมมิชชั่นพิเศษ":"50,853","ค่าคอมมิชชั่นรวม":"56,292","ค่า Ads":"12,542","กำไร":"43,750","ROAS":"4.49"},{"BIG1":"2026-03-09","จำนวนคำสั่งซื้อ":"857","มูลค่าคำสั่งซื้อ (บาท)":"332,557","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"5,498","ค่าคอมมิชชั่นพิเศษ":"45,171","ค่าคอมมิชชั่นรวม":"50,669","ค่า Ads":"12,945","กำไร":"37,724","ROAS":"3.91"},{"BIG1":"2026-03-10","จำนวนคำสั่งซื้อ":"932","มูลค่าคำสั่งซื้อ (บาท)":"347,981","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"5,894","ค่าคอมมิชชั่นพิเศษ":"49,258","ค่าคอมมิชชั่นรวม":"55,151","ค่า Ads":"24,743","กำไร":"30,408","ROAS":"2.23"},{"BIG1":"2026-03-11","จำนวนคำสั่งซื้อ":"946","มูลค่าคำสั่งซื้อ (บาท)":"361,470","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"5,907","ค่าคอมมิชชั่นพิเศษ":"51,534","ค่าคอมมิชชั่นรวม":"57,441","ค่า Ads":"24,673","กำไร":"32,768","ROAS":"2.33"},{"BIG1":"2026-03-12","จำนวนคำสั่งซื้อ":"922","มูลค่าคำสั่งซื้อ (บาท)":"425,301","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"6,260","ค่าคอมมิชชั่นพิเศษ":"47,136","ค่าคอมมิชชั่นรวม":"53,396","ค่า Ads":"24,320","กำไร":"29,076","ROAS":"2.20"},{"BIG1":"2026-03-13","จำนวนคำสั่งซื้อ":"751","มูลค่าคำสั่งซื้อ (บาท)":"291,089","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"4,711","ค่าคอมมิชชั่นพิเศษ":"38,770","ค่าคอมมิชชั่นรวม":"43,481","ค่า Ads":"20,157","กำไร":"23,324","ROAS":"2.16"},{"BIG1":"2026-03-14","จำนวนคำสั่งซื้อ":"750","มูลค่าคำสั่งซื้อ (บาท)":"284,262","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"4,201","ค่าคอมมิชชั่นพิเศษ":"37,979","ค่าคอมมิชชั่นรวม":"42,179","ค่า Ads":"20,827","กำไร":"21,352","ROAS":"2.03"},{"BIG1":"2026-03-15","จำนวนคำสั่งซื้อ":"771","มูลค่าคำสั่งซื้อ (บาท)":"330,446","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"5,519","ค่าคอมมิชชั่นพิเศษ":"43,568","ค่าคอมมิชชั่นรวม":"49,087","ค่า Ads":"16,471","กำไร":"32,617","ROAS":"2.98"},{"BIG1":"2026-03-16","จำนวนคำสั่งซื้อ":"649","มูลค่าคำสั่งซื้อ (บาท)":"240,515","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"4,021","ค่าคอมมิชชั่นพิเศษ":"31,235","ค่าคอมมิชชั่นรวม":"35,256","ค่า Ads":"18,015","กำไร":"17,241","ROAS":"1.96"},{"BIG1":"2026-03-17","จำนวนคำสั่งซื้อ":"647","มูลค่าคำสั่งซื้อ (บาท)":"220,494","% คอมมิชชั่น":"20%","ค่าคอมมิชชั่นที่ได้จากระบบ":"3,832","ค่าคอมมิชชั่นพิเศษ":"32,833","ค่าคอมมิชชั่นรวม":"36,665","ค่า Ads":"14,586","กำไร":"22,078","ROAS":"2.51"}];
+        window.__PRELOADED_STATS__ = {"profit":482139,"ads":353956,"totalComm":836095,"sales":5660420,"roas":2.36};
+    </script>
+
+    <script>
+        lucide.createIcons();
+
+        let chartInstance = null;
+        let processedData = [];
+        let summaryStats = {};
+
+        const config = {
+            token: localStorage.getItem('tor_gh_token') || '',
+            owner: localStorage.getItem('tor_gh_owner') || '',
+            repo: localStorage.getItem('tor_gh_repo') || ''
+        };
+
+        // ตรวจสอบว่ามีข้อมูลฝังมาหรือไม่ (สำหรับลูกค้าเปิดลิงก์)
+        window.onload = () => {
+            if (window.__PRELOADED_DATA__ && window.__PRELOADED_STATS__) {
+                processedData = window.__PRELOADED_DATA__;
+                summaryStats = window.__PRELOADED_STATS__;
+                document.body.classList.add('shared-view');
+                renderDashboard();
+            }
+        };
+
+        // UI ช่วยเหลือ
+        function toggleGithubModal() { document.getElementById('githubModal').classList.toggle('hidden'); }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.replace('opacity-0', 'opacity-100');
+            setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
+        }
+        function saveSettings() {
+            config.token = document.getElementById('ghToken').value.trim();
+            config.owner = document.getElementById('ghOwner').value.trim();
+            config.repo = document.getElementById('ghRepo').value.trim();
+            localStorage.setItem('tor_gh_token', config.token);
+            localStorage.setItem('tor_gh_owner', config.owner);
+            localStorage.setItem('tor_gh_repo', config.repo);
+            showToast("บันทึกการตั้งค่า GitHub แล้ว");
+            toggleGithubModal();
+        }
+
+        const cleanNum = (val) => {
+            if (!val) return 0;
+            let clean = val.toString().replace(/,/g, '').replace(/฿/g, '').replace(/%/g, '').trim();
+            return parseFloat(clean) || 0;
+        };
+
+        document.getElementById('fileInput').addEventListener('change', (e) => handleFile(e.target.files[0]));
+        
+        const dropZone = document.getElementById('dropZone');
+        if (dropZone) {
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('bg-orange-50/50'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-orange-50/50'));
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('bg-orange-50/50');
+                handleFile(e.dataTransfer.files[0]);
+            });
+        }
+
+        function handleFile(file) {
+            if (!file) return;
+            document.getElementById('loading').classList.remove('hidden');
+
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    processCSV(results.data);
+                    document.getElementById('loading').classList.add('hidden');
+                }
+            });
+        }
+
+        function processCSV(data) {
+            const totalRow = data.find(r => r['BIG1'] === 'รวม');
+            const dailyRows = data.filter(r => r['BIG1'] && r['BIG1'].startsWith('202') && cleanNum(r['กำไร']) !== 0);
+            const sortedData = [...dailyRows].sort((a, b) => new Date(a['BIG1']) - new Date(b['BIG1']));
+            processedData = sortedData;
+
+            if (totalRow) {
+                summaryStats = {
+                    profit: cleanNum(totalRow['กำไร']),
+                    ads: cleanNum(totalRow['ค่า Ads']),
+                    totalComm: cleanNum(totalRow['ค่าคอมมิชชั่นรวม']),
+                    sales: cleanNum(totalRow['มูลค่าคำสั่งซื้อ (บาท)']),
+                    roas: cleanNum(totalRow['ROAS'])
+                };
+            } else {
+                summaryStats = dailyRows.reduce((acc, curr) => {
+                    acc.profit += cleanNum(curr['กำไร']);
+                    acc.ads += cleanNum(curr['ค่า Ads']);
+                    acc.totalComm += cleanNum(curr['ค่าคอมมิชชั่นรวม']);
+                    acc.sales += cleanNum(curr['มูลค่าคำสั่งซื้อ (บาท)']);
+                    return acc;
+                }, { profit: 0, ads: 0, totalComm: 0, sales: 0 });
+                summaryStats.roas = summaryStats.ads > 0 ? (summaryStats.sales / summaryStats.ads).toFixed(2) : 0;
+            }
+
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            const upSec = document.getElementById('uploadSection');
+            if(upSec) upSec.classList.add('hidden');
+            document.getElementById('dashboardContent').classList.remove('hidden');
+            const navAct = document.getElementById('navActions');
+            if(navAct) navAct.classList.remove('hidden');
+
+            document.getElementById('statProfit').innerText = summaryStats.profit.toLocaleString() + ' ฿';
+            document.getElementById('statAds').innerText = summaryStats.ads.toLocaleString() + ' ฿';
+            document.getElementById('statComm').innerText = summaryStats.totalComm.toLocaleString() + ' ฿';
+            document.getElementById('statRoas').innerText = summaryStats.roas.toLocaleString() + 'x';
+
+            const adRatio = summaryStats.sales > 0 ? ((summaryStats.ads / summaryStats.sales) * 100).toFixed(1) : 0;
+            const margin = summaryStats.sales > 0 ? ((summaryStats.profit / summaryStats.sales) * 100).toFixed(1) : 0;
+
+            document.getElementById('adRatioText').innerText = adRatio + '%';
+            document.getElementById('adRatioBar').style.width = adRatio + '%';
+            document.getElementById('marginText').innerText = margin + '%';
+            document.getElementById('marginBar').style.width = margin + '%';
+
+            let msg = `รายงานแสดงกำไรสุทธิทั้งหมด ${summaryStats.profit.toLocaleString()} บาท `;
+            msg += summaryStats.roas >= 2.3 ? "แคมเปญมีประสิทธิภาพดีเยี่ยม (Profit Optimized)" : "แคมเปญอยู่ในระดับคงที่ (Stable Growth)";
+            document.getElementById('performanceSummary').innerText = msg;
+
+            renderChart();
+            renderTable();
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const labels = processedData.map(d => d['BIG1']);
+            const profitData = processedData.map(d => cleanNum(d['กำไร']));
+            const adsData = processedData.map(d => cleanNum(d['ค่า Ads']));
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'กำไรสุทธิ',
+                            data: profitData,
+                            borderColor: '#ee4d2d',
+                            backgroundColor: 'rgba(238, 77, 45, 0.15)',
+                            borderWidth: 4,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#ee4d2d',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'ค่าโฆษณา',
+                            data: adsData,
+                            borderColor: '#cbd5e1',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold', family: 'Kanit' },
+                            bodyFont: { family: 'Kanit' },
+                            cornerRadius: 15
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { size: 11, family: 'Kanit' }, color: '#94a3b8' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { font: { size: 11, family: 'Kanit' }, color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTable(filter = '') {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            const displayList = [...processedData].reverse().filter(d => d['BIG1'].includes(filter));
+
+            displayList.forEach(d => {
+                const profit = cleanNum(d['กำไร']);
+                const ads = cleanNum(d['ค่า Ads']);
+                const comm = cleanNum(d['ค่าคอมมิชชั่นรวม']);
+                const sales = cleanNum(d['มูลค่าคำสั่งซื้อ (บาท)']);
+                const roas = cleanNum(d['ROAS']);
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-orange-50/40 transition-all group">
+                        <td class="px-10 py-6 text-slate-400 font-bold group-hover:text-orange-600">${d['BIG1']}</td>
+                        <td class="px-10 py-6 text-right text-slate-600">${sales.toLocaleString()}</td>
+                        <td class="px-10 py-6 text-right text-slate-600 font-bold">${comm.toLocaleString()}</td>
+                        <td class="px-10 py-6 text-right text-slate-400">${ads.toLocaleString()}</td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="text-[#ee4d2d] font-extrabold text-base">${profit.toLocaleString()} ฿</span>
+                        </td>
+                        <td class="px-10 py-6 text-right">
+                            <span class="bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-bold text-xs border border-orange-100">${roas.toFixed(2)}x</span>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        const tableSearch = document.getElementById('tableSearch');
+        if(tableSearch) tableSearch.addEventListener('input', (e) => renderTable(e.target.value));
+
+        // ฟังก์ชันสำคัญ: การสร้างหน้าเว็บแชร์ให้ลูกค้า (ใช้ GitHub Pages URL)
+        async function syncToCloud() {
+            if (!config.token || !config.owner || !config.repo) {
+                toggleGithubModal();
+                showToast("กรุณาตั้งค่า GitHub API ก่อนเริ่มใช้งาน");
+                return;
+            }
+
+            const clientLabel = prompt("กรุณาระบุชื่อรายงาน (จะแสดงเป็นชื่อไฟล์):");
+            if (!clientLabel) return;
+
+            document.getElementById('loading').classList.remove('hidden');
+            
+            // ดึง HTML ปัจจุบันทั้งหมด
+            let fullHtml = document.documentElement.outerHTML;
+            
+            // เตรียมสคริปต์ฝังข้อมูล
+            const dataScript = `
+    <script id="embeddedData">
+        window.__PRELOADED_DATA__ = ${JSON.stringify(processedData)};
+        window.__PRELOADED_STATS__ = ${JSON.stringify(summaryStats)};
+    <\/script>`;
+
+            // แทนที่ส่วนของ embeddedData เดิมด้วยข้อมูลจริง
+            const sharedHtml = fullHtml.replace(/<script id="embeddedData">[\s\S]*?<\/script>/, dataScript);
+
+            const ts = Date.now();
+            const fileName = `reports/${clientLabel.replace(/\s+/g, '_')}_${ts}.html`;
+            const b64Content = btoa(unescape(encodeURIComponent(sharedHtml)));
+
+            const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${fileName}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${config.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `สร้างรายงานแดชบอร์ดสำหรับ ${clientLabel}`,
+                        content: b64Content
+                    })
+                });
+
+                if (response.ok) {
+                    // สร้าง URL สำหรับ GitHub Pages (ต้องเปิดใช้งาน GitHub Pages ใน Repo Settings ก่อน)
+                    const viewUrl = `https://${config.owner}.github.io/${config.repo}/${fileName}`;
+                    showToast("สร้างหน้าแดชบอร์ดสำเร็จ! คัดลอกลิงก์แล้ว");
+                    
+                    const el = document.createElement('textarea');
+                    el.value = viewUrl;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+
+                    // แจ้งเตือนผู้ใช้ให้ไปเปิด GitHub Pages
+                    alert("สร้างรายงานสำเร็จ!\n\nลิงก์สำหรับส่งให้ลูกค้าคือ:\n" + viewUrl + "\n\n(หากเปิดแล้วยังไม่ขึ้นหน้าเว็บ อย่าลืมไปที่ Settings > Pages ใน GitHub ของคุณ แล้วเลือก Branch เป็น 'main' นะครับ)");
+                    window.open(viewUrl, '_blank');
+                } else {
+                    const err = await response.json();
+                    alert("GitHub Error: " + err.message);
+                }
+            } catch (err) {
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + err.message);
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+    </script>
+
+
+</body></html>

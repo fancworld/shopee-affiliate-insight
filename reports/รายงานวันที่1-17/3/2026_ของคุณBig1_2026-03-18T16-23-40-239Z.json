@@ -1,0 +1,410 @@
+{
+  "summary": {
+    "timestamp": "18/3/2569 23:23:40",
+    "client": "รายงานวันที่1-17/3/2026 ของคุณBig1",
+    "totals": {
+      "base": 81676.96439200091,
+      "extra": 399595.68438640155,
+      "order": 5791102.890512523,
+      "net": 481272.64877839555
+    }
+  },
+  "details": [
+    {
+      "rank": 1,
+      "subid": "M01rum",
+      "order_value": 1611462,
+      "base_comm": 22840,
+      "extra_comm": 107068,
+      "commission": 129908,
+      "percent": "27.0%"
+    },
+    {
+      "rank": 2,
+      "subid": "sofabed",
+      "order_value": 1008177,
+      "base_comm": 14708,
+      "extra_comm": 71519,
+      "commission": 86227,
+      "percent": "17.9%"
+    },
+    {
+      "rank": 3,
+      "subid": "M01M01",
+      "order_value": 511904,
+      "base_comm": 6659,
+      "extra_comm": 31893,
+      "commission": 38552,
+      "percent": "8.0%"
+    },
+    {
+      "rank": 4,
+      "subid": "A0104rum",
+      "order_value": 408727,
+      "base_comm": 6416,
+      "extra_comm": 31810,
+      "commission": 38226,
+      "percent": "7.9%"
+    },
+    {
+      "rank": 5,
+      "subid": "aztk",
+      "order_value": 358616,
+      "base_comm": 5458,
+      "extra_comm": 27933,
+      "commission": 33392,
+      "percent": "6.9%"
+    },
+    {
+      "rank": 6,
+      "subid": "M01",
+      "order_value": 394473,
+      "base_comm": 5114,
+      "extra_comm": 28131,
+      "commission": 33245,
+      "percent": "6.9%"
+    },
+    {
+      "rank": 7,
+      "subid": "big020270226",
+      "order_value": 341673,
+      "base_comm": 4851,
+      "extra_comm": 23973,
+      "commission": 28824,
+      "percent": "6.0%"
+    },
+    {
+      "rank": 8,
+      "subid": "big016270226",
+      "order_value": 274998,
+      "base_comm": 4119,
+      "extra_comm": 18363,
+      "commission": 22483,
+      "percent": "4.7%"
+    },
+    {
+      "rank": 9,
+      "subid": "A0016",
+      "order_value": 211322,
+      "base_comm": 2565,
+      "extra_comm": 12872,
+      "commission": 15437,
+      "percent": "3.2%"
+    },
+    {
+      "rank": 10,
+      "subid": "A0115rum",
+      "order_value": 155570,
+      "base_comm": 2448,
+      "extra_comm": 10551,
+      "commission": 12999,
+      "percent": "2.7%"
+    },
+    {
+      "rank": 11,
+      "subid": "A0017",
+      "order_value": 91029,
+      "base_comm": 1051,
+      "extra_comm": 6356,
+      "commission": 7407,
+      "percent": "1.5%"
+    },
+    {
+      "rank": 12,
+      "subid": "A0010rum",
+      "order_value": 94954,
+      "base_comm": 1198,
+      "extra_comm": 5946,
+      "commission": 7144,
+      "percent": "1.5%"
+    },
+    {
+      "rank": 13,
+      "subid": "big017270226",
+      "order_value": 46964,
+      "base_comm": 610,
+      "extra_comm": 3220,
+      "commission": 3831,
+      "percent": "0.8%"
+    },
+    {
+      "rank": 14,
+      "subid": "A0005rum",
+      "order_value": 46916,
+      "base_comm": 611,
+      "extra_comm": 3214,
+      "commission": 3825,
+      "percent": "0.8%"
+    },
+    {
+      "rank": 15,
+      "subid": "A0009rum",
+      "order_value": 48681,
+      "base_comm": 514,
+      "extra_comm": 3047,
+      "commission": 3560,
+      "percent": "0.7%"
+    },
+    {
+      "rank": 16,
+      "subid": "big010260226",
+      "order_value": 20426,
+      "base_comm": 286,
+      "extra_comm": 1661,
+      "commission": 1947,
+      "percent": "0.4%"
+    },
+    {
+      "rank": 17,
+      "subid": "big014270226",
+      "order_value": 18152,
+      "base_comm": 243,
+      "extra_comm": 1390,
+      "commission": 1632,
+      "percent": "0.3%"
+    },
+    {
+      "rank": 18,
+      "subid": "big019270226",
+      "order_value": 18608,
+      "base_comm": 266,
+      "extra_comm": 1178,
+      "commission": 1444,
+      "percent": "0.3%"
+    },
+    {
+      "rank": 19,
+      "subid": "A0001rum",
+      "order_value": 12490,
+      "base_comm": 178,
+      "extra_comm": 967,
+      "commission": 1145,
+      "percent": "0.2%"
+    },
+    {
+      "rank": 20,
+      "subid": "A0131rum",
+      "order_value": 10195,
+      "base_comm": 129,
+      "extra_comm": 832,
+      "commission": 961,
+      "percent": "0.2%"
+    },
+    {
+      "rank": 21,
+      "subid": "big015270226",
+      "order_value": 10988,
+      "base_comm": 143,
+      "extra_comm": 810,
+      "commission": 953,
+      "percent": "0.2%"
+    },
+    {
+      "rank": 22,
+      "subid": "B0014",
+      "order_value": 10030,
+      "base_comm": 109,
+      "extra_comm": 811,
+      "commission": 920,
+      "percent": "0.2%"
+    },
+    {
+      "rank": 23,
+      "subid": "A0128",
+      "order_value": 6879,
+      "base_comm": 132,
+      "extra_comm": 572,
+      "commission": 705,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 24,
+      "subid": "big004260226",
+      "order_value": 9571,
+      "base_comm": 114,
+      "extra_comm": 503,
+      "commission": 617,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 25,
+      "subid": "big013270226",
+      "order_value": 6166,
+      "base_comm": 71,
+      "extra_comm": 546,
+      "commission": 617,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 26,
+      "subid": "A0050rum",
+      "order_value": 7537,
+      "base_comm": 49,
+      "extra_comm": 515,
+      "commission": 564,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 27,
+      "subid": "big008260226",
+      "order_value": 7476,
+      "base_comm": 81,
+      "extra_comm": 479,
+      "commission": 560,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 28,
+      "subid": "big002260226",
+      "order_value": 5577,
+      "base_comm": 120,
+      "extra_comm": 438,
+      "commission": 558,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 29,
+      "subid": "big006260226",
+      "order_value": 5221,
+      "base_comm": 110,
+      "extra_comm": 420,
+      "commission": 530,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 30,
+      "subid": "big007260226",
+      "order_value": 4515,
+      "base_comm": 65,
+      "extra_comm": 387,
+      "commission": 452,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 31,
+      "subid": "B0037",
+      "order_value": 3939,
+      "base_comm": 54,
+      "extra_comm": 340,
+      "commission": 394,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 32,
+      "subid": "big003260226",
+      "order_value": 4230,
+      "base_comm": 95,
+      "extra_comm": 278,
+      "commission": 373,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 33,
+      "subid": "big001260226",
+      "order_value": 3526,
+      "base_comm": 45,
+      "extra_comm": 308,
+      "commission": 353,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 34,
+      "subid": "big011270226",
+      "order_value": 3349,
+      "base_comm": 43,
+      "extra_comm": 291,
+      "commission": 335,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 35,
+      "subid": "big005260226",
+      "order_value": 2450,
+      "base_comm": 32,
+      "extra_comm": 213,
+      "commission": 245,
+      "percent": "0.1%"
+    },
+    {
+      "rank": 36,
+      "subid": "big018270226",
+      "order_value": 7115,
+      "base_comm": 1,
+      "extra_comm": 187,
+      "commission": 188,
+      "percent": "0.0%"
+    },
+    {
+      "rank": 37,
+      "subid": "A0043rum",
+      "order_value": 1706,
+      "base_comm": 13,
+      "extra_comm": 157,
+      "commission": 171,
+      "percent": "0.0%"
+    },
+    {
+      "rank": 38,
+      "subid": "big012270226",
+      "order_value": 1622,
+      "base_comm": 22,
+      "extra_comm": 140,
+      "commission": 162,
+      "percent": "0.0%"
+    },
+    {
+      "rank": 39,
+      "subid": "A0127",
+      "order_value": 1334,
+      "base_comm": 84,
+      "extra_comm": 50,
+      "commission": 133,
+      "percent": "0.0%"
+    },
+    {
+      "rank": 40,
+      "subid": "big009260226",
+      "order_value": 1021,
+      "base_comm": 14,
+      "extra_comm": 88,
+      "commission": 102,
+      "percent": "0.0%"
+    },
+    {
+      "rank": 41,
+      "subid": "B0043",
+      "order_value": 655,
+      "base_comm": 8,
+      "extra_comm": 57,
+      "commission": 66,
+      "percent": "0.0%"
+    },
+    {
+      "rank": 42,
+      "subid": "",
+      "order_value": 476,
+      "base_comm": 0,
+      "extra_comm": 48,
+      "commission": 48,
+      "percent": "0.0%"
+    },
+    {
+      "rank": 43,
+      "subid": "B0023",
+      "order_value": 343,
+      "base_comm": 5,
+      "extra_comm": 29,
+      "commission": 34,
+      "percent": "0.0%"
+    },
+    {
+      "rank": 44,
+      "subid": "B0035",
+      "order_value": 42,
+      "base_comm": 1,
+      "extra_comm": 3,
+      "commission": 4,
+      "percent": "0.0%"
+    }
+  ]
+}
